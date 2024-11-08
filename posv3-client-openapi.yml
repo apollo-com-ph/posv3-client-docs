@@ -1,0 +1,669 @@
+openapi: "3.0.2"
+info:
+  title: POSv3 Client API
+  version: "1.0"
+  description: Connectivity between POSv3 PWA to local devices such as printers, cash drawers, card terminals and data storage. API also handles connectivity to the central servers to process various cloud functions like authentication, uploading of transactions and data synchronization.  
+tags:
+  - name: UserController
+  - description: API for user login and logout
+  - name: DeviceController
+  - description: API for accessing devices like printer and cash drawer
+  
+servers:
+  - url: http://localhost:81107/pos3/v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+
+paths:
+
+  /login:
+    post:
+      tags: 
+        - UserController
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Username for the user logging in
+                password:
+                  type: string
+                  description: Password for the user hashed using SHA256
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  permissions:
+                    type: array
+                    items:
+                      type: string  
+                  message:
+                    type: string
+                    description: Success message
+                  code:
+                    type: integer
+                    description: Success code
+                    fixed: 0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Unauthorized message
+                  code:
+                    type: integer
+                    description: Unauthorized code   
+                    enum:
+                      - 4010  # General unauthorized
+                      - 4013  # Insufficient permissions
+                      - 4014  # User not found
+                      - 4015  # Wrong password
+                      - 4016  # Account locked
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message
+                  code:
+                    type: integer
+                    description: Error code
+  /logout:
+    post:
+      tags:
+        - UserController
+      summary: User logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  code:
+                    type: integer
+                    description: Success code
+                    fixed: 0              
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message
+                  code:
+                    type: integer
+                    description: Error code
+                    default: 50000  # General error
+
+  /device/status/{device_id}:
+    get:
+      tags:
+        - DeviceController
+      summary: Get list of devices connected to POS
+      parameters:
+        - name: device_id
+          description: Identifier of the device to check status. Status for all devices will be listed if no device_id is provided.
+          in: path
+          required: false
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  devices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        device_id:
+                          type: string
+                          description: Identifier of the device
+                        name:
+                          type: string
+                          description: Name for the device
+                        type:
+                          type: string
+                          description: Type of device
+                          enum:
+                            - PRINTER
+                            - CASH_DRAWER
+                            - LINE_DISPLAY
+                        status:
+                          type: string
+                          description: Status of the device
+                          enum:
+                            - CONNECTED
+                            - DISCONNECTED
+                            - ERROR
+                        configurations:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              key:
+                                type: string
+                                description: Configuration key
+                              value:
+                                type: string
+                                description: Configuration value
+                  message:
+                    type: string
+                    description: Success message
+                  code:
+                    type: integer
+                    description: Success code
+                    fixed: 0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Unauthorized message
+                  code:
+                    type: integer
+                    description: Unauthorized code   
+                    enum:
+                      - 4010  # General unauthorized
+                      - 4011  # Invalid token
+                      - 4012  # Token expired
+                      - 4013  # Insufficient permissions
+                      - 4014  # User not found
+                      - 4015  # Wrong password
+                      - 4016  # Account locked
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message
+                  code:
+                    type: integer
+                    description: Error code
+                    default: 50000  # General error
+
+  /device/test/{device_id}:
+    post:
+      tags:
+        - DeviceController
+      summary: Do a test action for the device to validate connectivity
+      parameters:
+        - name: device_id
+          description: Identifier of the device to test
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  code:
+                    type: integer
+                    description: Success code
+                    fixed: 0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Unauthorized message
+                  code:
+                    type: integer
+                    description: Unauthorized code   
+                    enum:
+                      - 4010  # General unauthorized
+                      - 4011  # Invalid token
+                      - 4012  # Token expired
+                      - 4013  # Insufficient permissions
+                      - 4014  # User not found
+                      - 4015  # Wrong password
+                      - 4016  # Account locked
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message
+                  code:
+                    type: integer
+                    description: Error code
+                    default: 50000  # General error
+
+  /device/reconnect/{device_id}:
+    post:
+      tags:
+        - DeviceController
+      summary: Reconnect to the device
+      parameters:
+        - name: device_id
+          description: Identifier of the device to reconnect to
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  code:
+                    type: integer
+                    description: Success code
+                    fixed: 0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Unauthorized message
+                  code:
+                    type: integer
+                    description: Unauthorized code   
+                    enum:
+                      - 4010  # General unauthorized
+                      - 4011  # Invalid token
+                      - 4012  # Token expired
+                      - 4013  # Insufficient permissions
+                      - 4014  # User not found
+                      - 4015  # Wrong password
+                      - 4016  # Account locked
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message
+                  code:
+                    type: integer
+                    description: Error code
+                    default: 50000  # General error
+
+  /device/configure/{device_id}:
+    put:
+      tags:
+        - DeviceController
+      summary: Set configuration for the device
+      parameters:
+        - name: device_id
+          description: Identifier of the device to set configuration
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              description: List of configurations to set
+              required: true
+              items:
+                type: object
+                properties:
+                  key:
+                    type: string
+                    description: Configuration key
+                  value:
+                    type: string
+                    description: Configuration value
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  code:
+                    type: integer
+                    description: Success code
+                    fixed: 0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Unauthorized message
+                  code:
+                    type: integer
+                    description: Unauthorized code   
+                    enum:
+                      - 4010  # General unauthorized
+                      - 4011  # Invalid token
+                      - 4012  # Token expired
+                      - 4013  # Insufficient permissions
+                      - 4014  # User not found
+                      - 4015  # Wrong password
+                      - 4016  # Account locked
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message
+                  code:
+                    type: integer
+                    description: Error code
+                    default: 50000  # General error
+
+  /device/print/{device_id}:
+    post:
+      tags:
+        - DeviceController
+      summary: Send text data to the printer device
+      parameters:
+        - name: device_id
+          description: Identifier of the printer device to print
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Text data to print. Use markdown for formatting.
+                  required: true
+                cut-after:
+                  type: boolean
+                  description: Cut the paper after printing
+                logo-before:
+                  type: boolean
+                  description: Print header logo before the text body
+                logo-after:
+                  type: boolean
+                  description: Print header logo after paper had been cut
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  code:
+                    type: integer
+                    description: Success code
+                    fixed: 0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Unauthorized message
+                  code:
+                    type: integer
+                    description: Unauthorized code   
+                    enum:
+                      - 4010  # General unauthorized
+                      - 4011  # Invalid token
+                      - 4012  # Token expired
+                      - 4013  # Insufficient permissions
+                      - 4014  # User not found
+                      - 4015  # Wrong password
+                      - 4016  # Account locked
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message
+                  code:
+                    type: integer
+                    description: Error code
+                    default: 50000  # General error
+
+  /device/print_image/{device_id}/{image_filename}:
+    post:
+      tags:
+        - DeviceController
+      summary: Print image to the printer device
+      parameters:
+        - name: device_id
+          description: Identifier of the printer device to print
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: image_filename
+          description: filename of the image to print
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  code:
+                    type: integer
+                    description: Success code
+                    fixed: 0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Unauthorized message
+                  code:
+                    type: integer
+                    description: Unauthorized code   
+                    enum:
+                      - 4010  # General unauthorized
+                      - 4011  # Invalid token
+                      - 4012  # Token expired
+                      - 4013  # Insufficient permissions
+                      - 4014  # User not found
+                      - 4015  # Wrong password
+                      - 4016  # Account locked
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message
+                  code:
+                    type: integer
+                    description: Error code
+                    default: 50000  # General error
+
+  /device/cut/{device_id}:
+    post:
+      tags:
+        - DeviceController
+      summary: Send cut command to the printer device
+      parameters:
+        - name: device_id
+          description: Identifier of the printer device to print
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  code:
+                    type: integer
+                    description: Success code
+                    fixed: 0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Unauthorized message
+                  code:
+                    type: integer
+                    description: Unauthorized code   
+                    enum:
+                      - 4010  # General unauthorized
+                      - 4011  # Invalid token
+                      - 4012  # Token expired
+                      - 4013  # Insufficient permissions
+                      - 4014  # User not found
+                      - 4015  # Wrong password
+                      - 4016  # Account locked
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message
+                  code:
+                    type: integer
+                    description: Error code
+                    default: 50000  # General error
+
