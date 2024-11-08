@@ -1,13 +1,13 @@
-openapi: "3.0.2"
+openapi: "3.0.0"
 info:
   title: POSv3 Client API
   version: "1.0"
   description: Connectivity between POSv3 PWA to local devices such as printers, cash drawers, card terminals and data storage. API also handles connectivity to the central servers to process various cloud functions like authentication, uploading of transactions and data synchronization.  
 tags:
   - name: UserController
-  - description: API for user login and logout
+    description: API for user login and logout
   - name: DeviceController
-  - description: API for accessing devices like printer and cash drawer
+    description: API for accessing devices like printer and cash drawer
   
 servers:
   - url: http://localhost:81107/pos3/v1
@@ -63,7 +63,6 @@ paths:
                   code:
                     type: integer
                     description: Success code
-                    fixed: 0
         '401':
           description: Unauthorized
           content:
@@ -117,7 +116,6 @@ paths:
                   code:
                     type: integer
                     description: Success code
-                    fixed: 0              
         '500':
           description: Internal Error
           content:
@@ -197,7 +195,6 @@ paths:
                   code:
                     type: integer
                     description: Success code
-                    fixed: 0
         '401':
           description: Unauthorized
           content:
@@ -262,7 +259,6 @@ paths:
                   code:
                     type: integer
                     description: Success code
-                    fixed: 0
         '401':
           description: Unauthorized
           content:
@@ -327,7 +323,6 @@ paths:
                   code:
                     type: integer
                     description: Success code
-                    fixed: 0
         '401':
           description: Unauthorized
           content:
@@ -383,7 +378,6 @@ paths:
             schema:
               type: array
               description: List of configurations to set
-              required: true
               items:
                 type: object
                 properties:
@@ -393,6 +387,9 @@ paths:
                   value:
                     type: string
                     description: Configuration value
+                required:
+                  - key
+                  - value
       security:
         - bearerAuth: []
       responses:
@@ -409,7 +406,6 @@ paths:
                   code:
                     type: integer
                     description: Success code
-                    fixed: 0
         '401':
           description: Unauthorized
           content:
@@ -468,7 +464,6 @@ paths:
                 text:
                   type: string
                   description: Text data to print. Use markdown for formatting.
-                  required: true
                 cut-after:
                   type: boolean
                   description: Cut the paper after printing
@@ -478,6 +473,8 @@ paths:
                 logo-after:
                   type: boolean
                   description: Print header logo after paper had been cut
+              required:
+                - text
       security:
         - bearerAuth: []
       responses:
@@ -494,7 +491,6 @@ paths:
                   code:
                     type: integer
                     description: Success code
-                    fixed: 0
         '401':
           description: Unauthorized
           content:
@@ -565,7 +561,6 @@ paths:
                   code:
                     type: integer
                     description: Success code
-                    fixed: 0
         '401':
           description: Unauthorized
           content:
@@ -630,7 +625,6 @@ paths:
                   code:
                     type: integer
                     description: Success code
-                    fixed: 0
         '401':
           description: Unauthorized
           content:
