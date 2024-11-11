@@ -1,27 +1,25 @@
 openapi: "3.0.0"
+
 info:
   title: POSv3 Client API
   version: "1.0"
   description: Connectivity between POSv3 PWA to local devices such as printers, cash drawers, card terminals and data storage. API also handles connectivity to the central servers to process various cloud functions like authentication, uploading of transactions and data synchronization.  
+
 tags:
   - name: UserController
     description: API for user login and logout
   - name: DeviceController
     description: API for accessing devices like printer and cash drawer
+  - name: DatastoreController
+    description: API for accessing local data storage
   
 servers:
   - url: http://localhost:81107/pos3/v1
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+
 security:
   - bearerAuth: []
 
 paths:
-
   /login:
     post:
       tags: 
@@ -32,69 +30,27 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: Username for the user logging in
-                password:
-                  type: string
-                  description: Password for the user hashed using SHA256
-              required:
-                - username
-                - password
+              $ref: '#/components/schemas/UserLoginRequest'
       responses:
         '200':
           description: Successful login
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                  permissions:
-                    type: array
-                    items:
-                      type: string  
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/UserLoginResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Unauthorized message
-                  code:
-                    type: integer
-                    description: Unauthorized code   
-                    enum:
-                      - 4010  # General unauthorized
-                      - 4013  # Insufficient permissions
-                      - 4014  # User not found
-                      - 4015  # Wrong password
-                      - 4016  # Account locked
+                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Internal Error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error message
-                  code:
-                    type: integer
-                    description: Error code
+                $ref: '#/components/schemas/InternalErrorResponse'
+
   /logout:
     post:
       tags:
@@ -108,41 +64,21 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/GenericSuccessResponse'
         '500':
           description: Internal Error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error message
-                  code:
-                    type: integer
-                    description: Error code
-                    default: 50000  # General error
+                $ref: '#/components/schemas/InternalErrorResponse'
 
   /device/status/{device_id}:
     get:
       tags:
         - DeviceController
-      summary: Get list of devices connected to POS
+      summary: Get list of devices connected to POS. Status for all devices will be listed if no device_id is provided.
       parameters:
-        - name: device_id
-          description: Identifier of the device to check status. Status for all devices will be listed if no device_id is provided.
-          in: path
-          required: false
-          schema:
-            type: string
+        - $ref: '#/components/parameters/device_id'
       security:
         - bearerAuth: []
       responses:
@@ -151,85 +87,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  devices:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        device_id:
-                          type: string
-                          description: Identifier of the device
-                        name:
-                          type: string
-                          description: Name for the device
-                        type:
-                          type: string
-                          description: Type of device
-                          enum:
-                            - PRINTER
-                            - CASH_DRAWER
-                            - LINE_DISPLAY
-                        status:
-                          type: string
-                          description: Status of the device
-                          enum:
-                            - CONNECTED
-                            - DISCONNECTED
-                            - ERROR
-                        configurations:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              key:
-                                type: string
-                                description: Configuration key
-                              value:
-                                type: string
-                                description: Configuration value
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/DeviceStatusResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Unauthorized message
-                  code:
-                    type: integer
-                    description: Unauthorized code   
-                    enum:
-                      - 4010  # General unauthorized
-                      - 4011  # Invalid token
-                      - 4012  # Token expired
-                      - 4013  # Insufficient permissions
-                      - 4014  # User not found
-                      - 4015  # Wrong password
-                      - 4016  # Account locked
+                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Internal Error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error message
-                  code:
-                    type: integer
-                    description: Error code
-                    default: 50000  # General error
+                $ref: '#/components/schemas/InternalErrorResponse'
 
   /device/test/{device_id}:
     post:
@@ -237,12 +113,7 @@ paths:
         - DeviceController
       summary: Do a test action for the device to validate connectivity
       parameters:
-        - name: device_id
-          description: Identifier of the device to test
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/device_id'
       security:
         - bearerAuth: []
       responses:
@@ -251,49 +122,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Unauthorized message
-                  code:
-                    type: integer
-                    description: Unauthorized code   
-                    enum:
-                      - 4010  # General unauthorized
-                      - 4011  # Invalid token
-                      - 4012  # Token expired
-                      - 4013  # Insufficient permissions
-                      - 4014  # User not found
-                      - 4015  # Wrong password
-                      - 4016  # Account locked
+                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Internal Error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error message
-                  code:
-                    type: integer
-                    description: Error code
-                    default: 50000  # General error
+                $ref: '#/components/schemas/InternalErrorResponse'
 
   /device/reconnect/{device_id}:
     post:
@@ -301,12 +148,7 @@ paths:
         - DeviceController
       summary: Reconnect to the device
       parameters:
-        - name: device_id
-          description: Identifier of the device to reconnect to
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/device_id'
       security:
         - bearerAuth: []
       responses:
@@ -315,49 +157,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Unauthorized message
-                  code:
-                    type: integer
-                    description: Unauthorized code   
-                    enum:
-                      - 4010  # General unauthorized
-                      - 4011  # Invalid token
-                      - 4012  # Token expired
-                      - 4013  # Insufficient permissions
-                      - 4014  # User not found
-                      - 4015  # Wrong password
-                      - 4016  # Account locked
+                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Internal Error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error message
-                  code:
-                    type: integer
-                    description: Error code
-                    default: 50000  # General error
+                $ref: '#/components/schemas/InternalErrorResponse'
 
   /device/configure/{device_id}:
     put:
@@ -365,31 +183,14 @@ paths:
         - DeviceController
       summary: Set configuration for the device
       parameters:
-        - name: device_id
-          description: Identifier of the device to set configuration
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/device_id'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: array
-              description: List of configurations to set
-              items:
-                type: object
-                properties:
-                  key:
-                    type: string
-                    description: Configuration key
-                  value:
-                    type: string
-                    description: Configuration value
-                required:
-                  - key
-                  - value
+              $ref: '#/components/schemas/DeviceConfigurationRequest'
+
       security:
         - bearerAuth: []
       responses:
@@ -398,49 +199,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Unauthorized message
-                  code:
-                    type: integer
-                    description: Unauthorized code   
-                    enum:
-                      - 4010  # General unauthorized
-                      - 4011  # Invalid token
-                      - 4012  # Token expired
-                      - 4013  # Insufficient permissions
-                      - 4014  # User not found
-                      - 4015  # Wrong password
-                      - 4016  # Account locked
+                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Internal Error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error message
-                  code:
-                    type: integer
-                    description: Error code
-                    default: 50000  # General error
+                $ref: '#/components/schemas/InternalErrorResponse'
 
   /device/print/{device_id}:
     post:
@@ -448,33 +225,13 @@ paths:
         - DeviceController
       summary: Send text data to the printer device
       parameters:
-        - name: device_id
-          description: Identifier of the printer device to print
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/device_id'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                text:
-                  type: string
-                  description: Text data to print. Use markdown for formatting.
-                cut-after:
-                  type: boolean
-                  description: Cut the paper after printing
-                logo-before:
-                  type: boolean
-                  description: Print header logo before the text body
-                logo-after:
-                  type: boolean
-                  description: Print header logo after paper had been cut
-              required:
-                - text
+              $ref: '#/components/schemas/DevicePrintRequest'
       security:
         - bearerAuth: []
       responses:
@@ -483,49 +240,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Unauthorized message
-                  code:
-                    type: integer
-                    description: Unauthorized code   
-                    enum:
-                      - 4010  # General unauthorized
-                      - 4011  # Invalid token
-                      - 4012  # Token expired
-                      - 4013  # Insufficient permissions
-                      - 4014  # User not found
-                      - 4015  # Wrong password
-                      - 4016  # Account locked
+                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Internal Error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error message
-                  code:
-                    type: integer
-                    description: Error code
-                    default: 50000  # General error
+                $ref: '#/components/schemas/InternalErrorResponse'
 
   /device/print_image/{device_id}/{image_filename}:
     post:
@@ -533,18 +266,8 @@ paths:
         - DeviceController
       summary: Print image to the printer device
       parameters:
-        - name: device_id
-          description: Identifier of the printer device to print
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: image_filename
-          description: filename of the image to print
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/device_id'
+        - $ref: '#/components/parameters/image_filename'
       security:
         - bearerAuth: []
       responses:
@@ -553,49 +276,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Unauthorized message
-                  code:
-                    type: integer
-                    description: Unauthorized code   
-                    enum:
-                      - 4010  # General unauthorized
-                      - 4011  # Invalid token
-                      - 4012  # Token expired
-                      - 4013  # Insufficient permissions
-                      - 4014  # User not found
-                      - 4015  # Wrong password
-                      - 4016  # Account locked
+                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Internal Error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error message
-                  code:
-                    type: integer
-                    description: Error code
-                    default: 50000  # General error
+                $ref: '#/components/schemas/InternalErrorResponse'
 
   /device/cut_paper/{device_id}:
     post:
@@ -603,12 +302,7 @@ paths:
         - DeviceController
       summary: Send cut command to the printer device
       parameters:
-        - name: device_id
-          description: Identifier of the printer device to print
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/device_id'
       security:
         - bearerAuth: []
       responses:
@@ -617,49 +311,25 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Unauthorized message
-                  code:
-                    type: integer
-                    description: Unauthorized code   
-                    enum:
-                      - 4010  # General unauthorized
-                      - 4011  # Invalid token
-                      - 4012  # Token expired
-                      - 4013  # Insufficient permissions
-                      - 4014  # User not found
-                      - 4015  # Wrong password
-                      - 4016  # Account locked
+                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Internal Error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Error message
-                  code:
-                    type: integer
-                    description: Error code
-                    default: 50000  # General error
+                $ref: '#/components/schemas/InternalErrorResponse'
 
   /device/open_drawer/{device_id}:
     post:
@@ -667,8 +337,43 @@ paths:
         - DeviceController
       summary: Open cash drawer device
       parameters:
-        - name: device_id
-          description: Identifier of the cash drawer device to open
+        - $ref: '#/components/parameters/device_id'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+  /datastore/list/{document}:
+    post:
+      tags:
+        - DatastoreController
+      summary: List all data from document with optional criteria
+      parameters:
+        - name: document
+          description: Name of the document to retrieve from
           in: path
           required: true
           schema:
@@ -689,29 +394,48 @@ paths:
                   code:
                     type: integer
                     description: Success code
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Unauthorized message
-                  code:
-                    type: integer
-                    description: Unauthorized code   
-                    enum:
-                      - 4010  # General unauthorized
-                      - 4011  # Invalid token
-                      - 4012  # Token expired
-                      - 4013  # Insufficient permissions
-                      - 4014  # User not found
-                      - 4015  # Wrong password
-                      - 4016  # Account locked
+                $ref: '#/components/schemas/UnauthorizedResponse'
         '500':
           description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+  /datastore/{document}/{id}:
+    get:
+      tags:
+        - DatastoreController
+      summary: Get document with ID
+      parameters:
+        - name: document
+          description: Name of the document to retrieve from
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          description: Identifier of the document to retrieve
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
           content:
             application/json:
               schema:
@@ -719,9 +443,269 @@ paths:
                 properties:
                   message:
                     type: string
-                    description: Error message
+                    description: Success message
                   code:
                     type: integer
-                    description: Error code
-                    default: 50000  # General error
+                    description: Success code
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
 
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    device_id:
+      name: device_id
+      in: path
+      description: Identifier of the device
+      required: true
+      schema:
+        type: string
+
+    image_filename:
+      name: image_filename
+      in: path
+      description: Filename of the image to print
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    GenericSuccessResponse:
+      description: Generic success response
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+          default: Success
+        code:
+          type: integer
+          description: Success code
+          default: 200
+      required:
+        - message
+        - code
+
+    UnauthorizedResponse:
+      description: Unauthorized response
+      properties:
+        message:
+          type: string
+          description: Unauthorized message
+          default: Unauthorized
+        code:
+          type: integer
+          description: Unauthorized code
+          enum:
+            - 4010  # General unauthorized
+            - 4011  # Invalid token
+            - 4012  # Token expired
+            - 4013  # Insufficient permissions
+            - 4014  # User not found
+            - 4015  # Wrong password
+            - 4016  # Account locked
+      required:
+        - message
+        - code
+    
+    InternalErrorResponse:
+      description: Internal error response
+      properties:
+        message:
+          type: string
+          description: Error message
+          default: Internal error
+        code:
+          type: integer
+          description: Error code
+          default: 50000  # General error
+      required:
+        - message
+        - code
+
+    BadRequestResponse:
+      description: Bad request error response
+      properties:
+        fields:
+          type: array
+          description: List of fields with errors
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field with error
+                example: field1
+              message:
+                type: string
+                description: Error message
+                example: Field is required
+        message:
+          type: string
+          description: Error message
+          default: Bad request
+        code:
+          type: integer
+          description: Error code
+          default: 40000  # General error
+      required:
+        - message
+        - code
+          
+    UserLoginRequest:
+      description: User login request
+      properties:
+        username:
+          type: string
+          description: Username for the user logging in
+          example: user1
+        password:
+          type: string
+          description: Password for the user hashed using SHA256
+          example: 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
+      required:
+        - username
+        - password
+
+    UserLoginResponse:
+      description: User login response
+      properties:
+        token:
+          type: string
+          description: JWT token for the user
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpYXQiOjE1MTYyMzkwMjJ9.3Jv5
+        permissions:
+          type: array
+          description: List of permissions for the user
+          items:
+            type: string
+            example: ["DEVICE_MAINTENANCE", "DEVICE_USER"]
+        message:
+          type: string
+          description: Success message
+          default: Login successful
+        code:
+          type: integer
+          description: Success code
+          default: 200
+      required:
+        - token
+        - permissions
+        - message
+        - code
+
+    DeviceStatusResponse:
+      description: Device status response
+      properties:
+        devices:
+          type: array
+          items:
+            type: object
+            properties:
+              device_id:
+                type: string
+                description: Identifier of the device
+                example: posiflex_printer_1
+              name:
+                type: string
+                description: Name for the device
+                example: Posiflex Printer 1
+              type:
+                type: string
+                description: Type of device
+                enum:
+                  - PRINTER
+                  - CASH_DRAWER
+                  - LINE_DISPLAY
+              status:
+                type: string
+                description: Status of the device
+                enum:
+                  - CONNECTED
+                  - DISCONNECTED
+                  - ERROR
+              configurations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                      description: Configuration key
+                      example: printer_paper_width
+                    value:
+                      type: string
+                      description: Configuration value
+                      example: 80mm
+        message:
+          type: string
+          description: Success message
+          default: Device status retrieved
+        code:
+          type: integer
+          description: Success code
+          default: 200
+
+    DeviceConfigurationRequest:
+      description: Device configuration request
+      type: object
+      properties:
+        configurations:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                description: Configuration key
+                example: printer_paper_width
+              value:
+                type: string
+                description: Configuration value
+                example: 80mm
+      required:
+        - configurations
+
+    DevicePrintRequest:
+      description: Device print request
+      type: object
+      properties:
+        text:
+          type: string
+          description: Text data to print. Use markdown for formatting.
+          example: Test Print\n\nThis is a test print
+        cut-after:
+          type: boolean
+          description: Cut the paper after printing
+          default: false
+        logo-before:
+          type: boolean
+          description: Print header logo before the text body
+          default: false
+        logo-after:
+          type: boolean
+          description: Print header logo after paper had been cut
+          default: false
+      required:
+        - text
