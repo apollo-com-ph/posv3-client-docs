@@ -366,6 +366,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
 
+# TODO: filter by criteria
   /datastore/list/{document}:
     post:
       tags:
@@ -386,14 +387,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/DocumentResultListResponse'
         '400':
           description: Bad Request
           content:
@@ -439,14 +433,104 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: Success message
-                  code:
-                    type: integer
-                    description: Success code
+                $ref: '#/components/schemas/DocumentResultResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    post:
+      tags:
+        - DatastoreController
+      summary: Update document with ID
+      parameters:
+        - name: document
+          description: Name of the document to update
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          description: Identifier of the document to update
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResultResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+
+  /datastore/{document}:
+    post:
+      tags:
+        - DatastoreController
+      summary: Create a new document
+      parameters:
+        - name: document
+          description: Name of the document to create
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResultResponse'
         '400':
           description: Bad Request
           content:
@@ -709,3 +793,359 @@ components:
           default: false
       required:
         - text
+
+    DocumentResultListResponse:
+      description: Result list response
+      type: object
+      properties:
+        results:
+          type: array
+          description: List of results
+          items:
+            type: object
+            description: Result item
+          default: []
+        result_size:
+          type: integer
+          description: Number of results
+          default: 0
+        message:
+          type: string
+          description: Success message
+          default: Success
+        code:
+          type: integer
+          description: Success code
+          default: 200
+      required:
+        - results
+        - result_size
+        - message
+        - code
+
+    DocumentResultResponse:
+      description: Document result response
+      type: object
+      properties:
+        id: 
+          type: string
+          description: Identifier of the document
+          example: 123456
+        result:
+          type: object
+          description: Document data
+          default: null
+        message:
+          type: string
+          description: Success message
+          default: Success
+        code:
+          type: integer
+          description: Success code
+          default: 200
+      required:
+        - message
+        - code
+
+    ProductDocument:
+      description: Product document
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the product
+          example: 123456
+        long_name:
+          type: string
+          description: Unabbreviated name of the product
+          example: Product 1
+        short_name:
+          type: string
+          description: Abbreviated name of the product
+          maxLength: 50
+          example: Prod1
+        identifiers:
+          type: array
+          description: Identifiers assigned to the product
+          items:
+            type: object
+            $ref: '#/components/schemas/ProductIdentifierDocument'
+          example: [{id: 123456, type: SKU}]
+        catalog_category:
+          type: object
+          description: Category of the product
+          $ref: '#/components/schemas/CategoryDocument'
+          example: {id: 123e4567-e89b-12d3-a456-426614174000, name: Food, type: CATALOG_CATEGORY}
+        catalog_subcategory:
+          type: string
+          description: Subcategory of the product
+          $ref: '#/components/schemas/CategoryDocument'
+          example: {id: 123e4567-e89b-12d3-a456-426614174001, name: Snacks, type: CATALOG_SUBCATEGORY}
+        catalog_super_category:
+          type: string
+          description: Super category of the product
+          $ref: '#/components/schemas/CategoryDocument'
+          example: {id: 123e4567-e89b-12d3-a456-426614174002, name: Grocery, type: CATALOG_SUPER_CATEGORY}
+        categories:
+          type: array
+          description: List of categories assigned to the product
+          items:
+            type: object
+            $ref: '#/components/schemas/CategoryDocument'
+          example: [{id: 123e4567-e89b-12d3-a456-426614174000, name: Food, type: CATALOG_CATEGORY}]
+        image_url:
+          type: string
+          description: Filename of the product image
+          example: images/product/product1.jpg
+        prices:
+          type: array
+          description: Prices of the product
+          items:
+            type: object
+            $ref: '#/components/schemas/ProductPriceDocument'
+          example: [{price: 10.00, currency: PHP, type: RETAIL, start_date: 2021-01-01T00:00:00Z, end_date: 2021-12-31T23:59:59Z}]
+        costs:
+          type: array
+          description: Costs of the product
+          items:
+            type: object
+            $ref: '#/components/schemas/ProductPriceDocument'
+          example: [{price: 5.00, currency: PHP, type: COST, start_date: 2021-01-01T00:00:00Z, end_date: 2021-12-31T23:59:59Z}]
+        tax_rate:
+          type: number
+          description: Tax rate of the product
+          example: 0.12
+        is_consigned:
+          type: boolean
+          description: Is the product consigned
+          default: false
+        discontinued_date:
+          type: string
+          description: Date when the product was discontinued
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        date_created:
+          type: string
+          description: Date created of the product document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the product document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+#       brand:
+#       attributes:
+#       cross_sell_products:
+#       bill_of_materials:
+      required:
+        - id
+        - long_name
+        - short_name
+        - identifiers
+        - catalog_category
+        - categories
+        - prices
+        - tax_rate
+        - is_consigned
+        - date_created
+        - last_updated
+
+    ProductIdentifierDocument:
+      description: Product identifier document
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the product identifier
+          example: 123456
+        type:
+          type: string
+          description: Type of the product identifier
+          example: SKU
+      required:
+        - id
+        - type
+
+    CategoryDocument:
+      description: Category document
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the category
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          type: string
+          description: Name of the category
+          example: Food
+        type:
+          type: string
+          description: Type of the category
+          example: CATALOG_CATEGORY
+      required:
+        - id
+        - name
+        - type
+
+    ProductPriceDocument:
+      description: Product price document
+      type: object
+      properties:
+        price:
+          type: number
+          description: Price of the product
+          example: 10.00
+        currency:
+          type: string
+          description: Currency of the price
+          example: PHP
+        type:
+          type: string
+          description: Type of the price
+          example: RETAIL
+        start_date:
+          type: string
+          description: Start date of the price
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        end_date:
+          type: string
+          description: End date of the price
+          format: date-time
+          example: 2021-12-31T23:59:59Z
+      required:
+        - price
+        - currency
+        - start_date
+        - end_date
+
+    BarcodeDocument:
+      description: Barcode document
+      type: object
+      properties:
+        barcode:
+          type: string
+          description: Barcode value
+          example: 1234567890123
+        product:
+          type: object
+          description: Product associated with the barcode
+          properties:
+            id:
+              type: string
+              description: Identifier of the product
+              example: 123456
+            long_name:
+              type: string
+              description: Unabbreviated name of the product
+              example: Product 1
+            short_name:
+              type: string
+              description: Abbreviated name of the product
+              maxLength: 50
+              example: Prod1
+        start_date:
+          type: string
+          description: Start date of the barcode
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        end_date:
+          type: string
+          description: End date of the barcode
+          format: date-time
+          example: 2021-12-31T23:59:59Z
+        date_created:
+          type: string
+          description: Date created of the barcode document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the barcode document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+      required:
+        - id
+        - barcode
+        - type
+        - date_created
+        - last_updated
+
+    PosMenuDocument:
+      description: POS menu document
+      type: object
+      properties:
+        items:
+          type: array
+          description: List of menu items
+          items:
+            type: object
+            $ref: '#/components/schemas/MenuItemDocument'
+            example: [{id: 123456, label: Menu Item 1, product: {id: 123456, long_name: Product 1, short_name: Prod1}, image_url: images/product/product1.jpg, foreground_color: \#000000, background_color: \#FFFFFF}]
+        date_created:
+          type: string
+          description: Date created of the menu document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the menu document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+
+    MenuItemDocument:
+      description: Menu item document
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the menu
+          example: 123e4567-e89b-12d3-a456-426614174000
+        label:
+          type: string
+          description: Display label of the menu item
+          example: Menu 1
+        product:
+          type: object
+          description: Product associated with the menu item
+          properties:
+            id:
+              type: string
+              description: Identifier of the product
+              example: 123456
+            long_name:
+              type: string
+              description: Unabbreviated name of the product
+              example: Product 1
+            short_name:
+              type: string
+              description: Abbreviated name of the product
+              maxLength: 50
+              example: Prod1
+        image_url:
+          type: string
+          description: Filename of the menu item image
+          example: images/product/product1.jpg
+        foreground_color:
+          type: string
+          description: Foreground color of the menu item
+          example: #000000
+        background_color:
+          type: string
+          description: Background color of the menu item
+          example: #FFFFFF
+        date_created:
+          type: string
+          description: Date created of the menu document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the menu document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+      required:
+        - label
+        - date_created
+        - last_updated
