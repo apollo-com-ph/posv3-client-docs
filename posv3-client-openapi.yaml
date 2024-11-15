@@ -1229,6 +1229,13 @@ components:
               description: Abbreviated name of the product
               maxLength: 50
               example: Prod1
+        items:
+          type: array
+          description: List of sub menu items
+          items:
+            type: object
+            $ref: '#/components/schemas/MenuItemDocument'
+            example: [{id: 123456, label: Menu Item 1, product: {id: 123456, long_name: Product 1, short_name: Prod1}, image_url: images/product/product1.jpg, foreground_color: \#000000, background_color: \#FFFFFF}]
         image_url:
           type: string
           description: Filename of the menu item image
