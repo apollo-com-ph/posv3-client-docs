@@ -366,7 +366,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
 
-# TODO: filter by criteria
   /datastore/list/{document}:
     post:
       tags:
@@ -379,6 +378,11 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
       security:
         - bearerAuth: []
       responses:
@@ -503,7 +507,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
 
-
   /datastore/{document}:
     post:
       tags:
@@ -549,6 +552,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+
+  
 
 components:
   securitySchemes:
@@ -794,6 +799,107 @@ components:
       required:
         - text
 
+    QueryRequest:
+      description: Query request
+      type: object
+      properties:
+        query:
+          type: object
+          $ref: '#/components/schemas/BooleanConditionQuery'
+          example: {and: [{eq: {field1: value1}}, {gt: {field2: value2}}]}
+        sort:
+          type: object
+          description: Sort object
+          example: {field1: ASC, field2: DESC}
+        limit:
+          type: integer
+          description: Limit of results
+          example: 10
+        offset:
+          type: integer
+          description: Offset of results
+          example: 0
+      required:
+        - query
+
+    MatchConditionQuery:
+      description: Match condition query
+      type: object
+      properties:
+        eq:
+          type: object
+          description: Match equal condition
+          example: {field: value}
+        ne:
+          type: object
+          description: Match not equal condition
+          example: {field: value}
+        gt:
+          type: object
+          description: Match greater than condition
+          example: {field: value}
+        gte:
+          type: object
+          description: Match greater than or equal condition
+          example: {field: value}
+        lt:
+          type: object
+          description: Match less than condition
+          example: {field: value}
+        lte:
+          type: object
+          description: Match less than or equal condition
+          example: {field: value}
+        in:
+          type: object
+          description: Match in condition
+          example: {field: [value1, value2]}
+        nin:
+          type: object
+          description: Match not in condition
+          example: {field: [value1, value2]}
+        like:
+          type: object
+          description: Match like condition
+          example: {field: value}
+        nlike:
+          type: object
+          description: Match not like condition
+          example: {field: value}
+        between:
+          type: object
+          description: Match between condition
+          example: {field: [value1, value2]}
+
+    BooleanConditionQuery:
+      description: Boolean condition query
+      type: object
+      properties:
+        and:
+          type: array
+          description: List of AND conditions
+          items:
+            type: object
+            oneOf:
+              - $ref: '#/components/schemas/MatchConditionQuery'
+              - $ref: '#/components/schemas/BooleanConditionQuery'
+        or:
+          type: array
+          description: List of OR conditions
+          items:
+            type: object
+            oneOf:
+              - $ref: '#/components/schemas/MatchConditionQuery'
+              - $ref: '#/components/schemas/BooleanConditionQuery'
+        not:
+          type: object
+          description: NOT condition
+          items:
+            type: object
+            oneOf:
+              - $ref: '#/components/schemas/MatchConditionQuery'
+              - $ref: '#/components/schemas/BooleanConditionQuery'
+
     DocumentResultListResponse:
       description: Result list response
       type: object
@@ -903,14 +1009,14 @@ components:
           items:
             type: object
             $ref: '#/components/schemas/ProductPriceDocument'
-          example: [{price: 10.00, currency: PHP, type: RETAIL, start_date: 2021-01-01T00:00:00Z, end_date: 2021-12-31T23:59:59Z}]
+          example: [{price: 10.00, currency: PHP, type: RETAIL, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z}]
         costs:
           type: array
           description: Costs of the product
           items:
             type: object
             $ref: '#/components/schemas/ProductPriceDocument'
-          example: [{price: 5.00, currency: PHP, type: COST, start_date: 2021-01-01T00:00:00Z, end_date: 2021-12-31T23:59:59Z}]
+          example: [{price: 5.00, currency: PHP, type: COST, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z}]
         tax_rate:
           type: number
           description: Tax rate of the product
@@ -1004,12 +1110,12 @@ components:
           type: string
           description: Type of the price
           example: RETAIL
-        start_date:
+        from_date:
           type: string
           description: Start date of the price
           format: date-time
           example: 2021-01-01T00:00:00Z
-        end_date:
+        to_date:
           type: string
           description: End date of the price
           format: date-time
@@ -1017,8 +1123,8 @@ components:
       required:
         - price
         - currency
-        - start_date
-        - end_date
+        - from_date
+        - to_date
 
     BarcodeDocument:
       description: Barcode document
@@ -1045,12 +1151,12 @@ components:
               description: Abbreviated name of the product
               maxLength: 50
               example: Prod1
-        start_date:
+        from_date:
           type: string
           description: Start date of the barcode
           format: date-time
           example: 2021-01-01T00:00:00Z
-        end_date:
+        to_date:
           type: string
           description: End date of the barcode
           format: date-time
@@ -1135,6 +1241,16 @@ components:
           type: string
           description: Background color of the menu item
           example: #FFFFFF
+        from_date:
+          type: string
+          description: Start date of the barcode
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        to_date:
+          type: string
+          description: End date of the barcode
+          format: date-time
+          example: 2021-12-31T23:59:59Z
         date_created:
           type: string
           description: Date created of the menu document
@@ -1147,5 +1263,589 @@ components:
           example: 2021-01-01T00:00:00Z
       required:
         - label
+        - from_date
+        - date_created
+        - last_updated
+
+    BusinessDateDocument:
+      description: Details for business date data
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the business date
+          example: 123e4567-e89b-12d3-a456-426614174000
+        business_date:
+          type: string
+          description: Date assigned for this business date object
+          format: date
+          example: 2021-01-01
+        start_date:
+          type: string
+          description: Start date of the business date
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        end_date:
+          type: string
+          description: End date of the business date
+          format: date-time
+          example: 2021-01-01T23:59:59Z
+        x_readings:
+          type: object
+          description: X Readings for the business date
+          $ref: '#/components/schemas/PosReadingDocument'
+          example: {or_beginning_series: 000000, or_ending_series: 000001, or_beginning_sales: 1000.00, or_ending_sales: 2000.00, or_series_reset: 0, or_transaction_count: 100, or_gross_sales: 10000.00, or_net_sales: 9000.00, or_total_vatable_sales: 8000.00, or_total_vat_exempt_sales: 1000.00, or_total_zero_rated_sales: 0.00, or_total_vat_amount: 1000.00, or_total_discount: 1000.00, or_total_item_refund: 1000.00, or_total_receipt_refund: 1000.00, or_total_refund: 1000.00, or_credit_memo_beginning_series: 000000, or_credit_memo_ending_series: 000001, or_credit_memo_series_reset: 0, ar_beginning_series: 000000, ar_ending_series: 000001, ar_beginning_sales: 1000.00, ar_ending_sales: 2000.00, ar_series_reset: 0, ar_transaction_count: 100, ar_gross_sales: 10000.00, ar_net_sales: 9000.00, ar_total_vatable_sales: 8000.00, ar_total_vat_exempt_sales: 1000.00, ar_total_zero_rated_sales: 0.00, ar_total_vat_amount: 1000.00, ar_total_discount: 1000.00, ar_total_item_refund: 1000.00, ar_total_receipt_refund: 1000.00, ar_total_refund: 1000.00}
+        z_readings:
+          type: object
+          description: Z Readings for the business date
+          $ref: '#/components/schemas/PosReadingDocument'
+          example: {or_beginning_series: 000000, or_ending_series: 000001, or_beginning_sales: 1000.00, or_ending_sales: 2000.00, or_series_reset: 0, or_transaction_count: 100, or_gross_sales: 10000.00, or_net_sales: 9000.00, or_total_vatable_sales: 8000.00, or_total_vat_exempt_sales: 1000.00, or_total_zero_rated_sales: 0.00, or_total_vat_amount: 1000.00, or_total_discount: 1000.00, or_total_item_refund: 1000.00, or_total_receipt_refund: 1000.00, or_total_refund: 1000.00, or_credit_memo_beginning_series: 000000, or_credit_memo_ending_series: 000001, or_credit_memo_series_reset: 0, ar_beginning_series: 000000, ar_ending_series: 000001, ar_beginning_sales: 1000.00, ar_ending_sales: 2000.00, ar_series_reset: 0, ar_transaction_count: 100, ar_gross_sales: 10000.00, ar_net_sales: 9000.00, ar_total_vatable_sales: 8000.00, ar_total_vat_exempt_sales: 1000.00, ar_total_zero_rated_sales: 0.00, ar_total_vat_amount: 1000.00, ar_total_discount: 1000.00, ar_total_item_refund: 1000.00, ar_total_receipt_refund: 1000.00, ar_total_refund: 1000.00}
+        date_created:
+          type: string
+          description: Date created of the business date document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the business date document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+      required:
+        - business_date
+        - start_date
+        - x_readings
+        - z_readings
+        - date_created
+        - last_updated
+
+    ShiftDocument:
+      description: Details for Shift data
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the shift
+          example: 123e4567-e89b-12d3-a456-426614174000
+        shift_number:
+          type: string
+          description: Description for the shift
+          example: 1
+        start_date:
+          type: string
+          description: Start date of the business date
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        end_date:
+          type: string
+          description: End date of the business date
+          format: date-time
+          example: 2021-01-01T23:59:59Z
+        business_date:
+          type: object
+          description: Business date assigned for this shift
+          properties:
+            id:
+              type: string
+              description: Identifier for the business date object
+              example: 123e4567-e89b-12d3-a456-426614174000
+            date:
+              type: string
+              description: Date assigned for this business date object
+              format: date
+              example: 2021-01-01
+          required:
+            - id
+            - date
+        s_readings:
+          type: object
+          description: Shift Readings for the shift
+          $ref: '#/components/schemas/PosReadingDocument'
+          example: {or_beginning_series: 000000, or_ending_series: 000001, or_beginning_sales: 1000.00, or_ending_sales: 2000.00, or_series_reset: 0, or_transaction_count: 100, or_gross_sales: 10000.00, or_net_sales: 9000.00, or_total_vatable_sales: 8000.00, or_total_vat_exempt_sales: 1000.00, or_total_zero_rated_sales: 0.00, or_total_vat_amount: 1000.00, or_total_discount: 1000.00, or_total_item_refund: 1000.00, or_total_receipt_refund: 1000.00, or_total_refund: 1000.00, or_credit_memo_beginning_series: 000000, or_credit_memo_ending_series: 000001, or_credit_memo_series_reset: 0, ar_beginning_series: 000000, ar_ending_series: 000001, ar_beginning_sales: 1000.00, ar_ending_sales: 2000.00, ar_series_reset: 0, ar_transaction_count: 100, ar_gross_sales: 10000.00, ar_net_sales: 9000.00, ar_total_vatable_sales: 8000.00, ar_total_vat_exempt_sales: 1000.00, ar_total_zero_rated_sales: 0.00, ar_total_vat_amount: 1000.00, ar_total_discount: 1000.00, ar_total_item_refund: 1000.00, ar_total_receipt_refund: 1000.00, ar_total_refund: 1000.00}
+        date_created:
+          type: string
+          description: Date created of the business date document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the business date document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        cashier_id:
+          type: object
+          description: Cashier details assigned for this shift
+          properties:
+            id:
+              type: string
+              description: Identifer for the cashier
+              example: 711001
+            name:
+              type: string
+              description: Name of the cashier
+              example: Juan Luna
+          required:
+            - id
+            - name
+      required:
+        - shift_number
+        - business_date
+        - start_date
+        - s_readings
+        - date_created
+        - last_updated
+        - cashier_id
+
+    PosReadingDocument:
+      description: POS reading document
+      type: object
+      properties:
+        or_beginning_series:
+          type: string
+          description: Official beginning series
+          example: 000000
+        or_ending_series:
+          type: string
+          description: Official Receipt ending series
+          example: 000001
+        or_beginning_sales:
+          type: number
+          description: Official Receipt beginning sales
+          example: 1000.00
+        or_ending_sales:
+          type: number
+          description: Official Receipt ending sales
+          example: 2000.00
+        or_series_reset:
+          type: number
+          description: Official Receipt series reset
+          example: 0
+        or_transaction_count:
+          type: number
+          description: Official Receipt transaction count
+          example: 100
+        or_gross_sales:
+          type: number
+          description: Official Receipt gross sales
+          example: 10000.00
+        or_net_sales:
+          type: number
+          description: Official Receipt net sales
+          example: 9000.00
+        or_total_vatable_sales:
+          type: number
+          description: Official Receipt total vatable sales
+          example: 8000.00
+        or_total_vat_exempt_sales:
+          type: number
+          description: Official Receipt total vat exempt sales
+          example: 1000.00
+        or_total_zero_rated_sales:
+          type: number
+          description: Official Receipt total zero rated sales
+          example: 0.00
+        or_total_vat_amount:
+          type: number
+          description: Official Receipt total vat amount
+          example: 1000.00
+        or_total_discount:
+          type: number
+          description: Official Receipt total discount
+          example: 1000.00
+        or_total_item_refund:
+          type: number
+          description: Official Receipt total item discount
+          example: 1000.00
+        or_total_receipt_refund:
+          type: number
+          description: Official Receipt total receipt discount
+          example: 1000.00
+        or_total_refund:
+          type: number
+          description: Official Receipt total discount
+          example: 1000.00
+        or_credit_memo_beginning_series:
+          type: string
+          description: Official Receipt credit memo beginning series
+          example: 000000
+        or_credit_memo_ending_series:
+          type: string
+          description: Official Receipt credit memo ending series
+          example: 000001
+        or_credit_memo_series_reset:
+          type: number
+          description: Official Receipt credit memo series reset
+          example: 0
+        ar_beginning_series:
+          type: string
+          description: Acknowlegement Receipt beginning series
+          example: 000000
+        ar_ending_series:
+          type: string
+          description: Acknowlegement Receipt ending series
+          example: 000001
+        ar_beginning_sales:
+          type: number
+          description: Acknowlegement Receipt beginning sales
+          example: 1000.00
+        ar_ending_sales:
+          type: number
+          description: Acknowlegement Receipt ending sales
+          example: 2000.00
+        ar_series_reset:
+          type: number
+          description: Acknowlegement Receipt series reset
+          example: 0
+        ar_transaction_count:
+          type: number
+          description: Acknowlegement Receipt transaction count
+          example: 100
+        ar_gross_sales:
+          type: number
+          description: Acknowlegement Receipt gross sales
+          example: 10000.00
+        ar_net_sales:
+          type: number
+          description: Acknowlegement Receipt net sales
+          example: 9000.00
+        ar_total_vatable_sales:
+          type: number
+          description: Acknowlegement Receipt total vatable sales
+          example: 8000.00
+        ar_total_vat_exempt_sales:
+          type: number
+          description: Acknowlegement Receipt total vat exempt sales
+          example: 1000.00
+        ar_total_zero_rated_sales:
+          type: number
+          description: Acknowlegement Receipt total zero rated sales
+          example: 0.00
+        ar_total_vat_amount:
+          type: number
+          description: Acknowlegement Receipt total vat amount
+          example: 1000.00
+        ar_total_discount:
+          type: number
+          description: Acknowlegement Receipt total discount
+          example: 1000.00
+        ar_total_item_refund:
+          type: number
+          description: Acknowlegement Receipt total item discount
+          example: 1000.00
+        ar_total_receipt_refund:
+          type: number
+          description: Acknowlegement Receipt total receipt discount
+          example: 1000.00
+        ar_total_refund:
+          type: number
+          description: Acknowlegement Receipt total discount
+          example: 1000.00
+        ar_credit_memo_beginning_series:
+          type: string
+          description: Acknowlegement Receipt credit memo beginning series
+          example: 000000
+        ar_credit_memo_ending_series:
+          type: string
+          description: Acknowlegement Receipt credit memo ending series
+          example: 000001
+        ar_credit_memo_series_reset:
+          type: number
+          description: Acknowlegement Receipt credit memo series reset
+          example: 0
+        void_beginning_series:
+          type: string
+          description: Void beginning series
+          example: 000000
+        void_ending_series:
+          type: string
+          description: Void ending series
+          example: 000001
+        void_series_reset:
+          type: number
+          description: Void credit memo series reset
+          example: 0
+        totals:
+          type: array
+          description: agregated totals for the business date
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Type of total
+                example: merchandise_sales
+              amount:
+                type: number
+                description: Total amount for the type
+                example: 1000.00
+              count:
+                type: number
+                description: Number of transactions for the type
+                example: 100
+        lists:
+          type: array
+          description: enumerated list related to the business date (e.g. EPayments, Online transactions, etc)
+          items: 
+            type: object
+            properties:
+              type:
+                type: string
+                description: Type of list
+                example: epayments
+              items:
+                type: array
+                description: Items in list
+                items:
+                  type: object
+                  properties:
+                    data:
+                      type: string
+                      description: Details of an item
+                      example: MayaQR-12332123
+                    amount:
+                      type: number
+                      description: Amount for the item
+                      example: 1000.00
+      required:
+      - or_beginning_series
+      - or_ending_series
+      - or_beginning_sales
+      - or_ending_sales
+      - or_series_reset
+      - or_transaction_count
+      - or_gross_sales
+      - or_net_sales
+      - or_total_vatable_sales
+      - or_total_vat_exempt_sales
+      - or_total_zero_rated_sales
+      - or_total_vat_amount
+      - or_total_discount
+      - or_total_item_refund
+      - or_total_receipt_refund
+      - or_total_refund
+      - or_credit_memo_beginning_series
+      - or_credit_memo_ending_series
+      - or_credit_memo_series_reset
+      - ar_beginning_series
+      - ar_ending_series
+      - ar_beginning_sales
+      - ar_ending_sales
+      - ar_series_reset
+      - ar_transaction_count
+      - ar_gross_sales
+      - ar_net_sales
+      - ar_total_vatable_sales
+      - ar_total_vat_exempt_sales
+      - ar_total_zero_rated_sales
+      - ar_total_vat_amount
+      - ar_total_discount
+      - ar_total_item_refund
+      - ar_total_receipt_refund
+      - ar_total_refund
+      - ar_credit_memo_beginning_series
+      - ar_credit_memo_ending_series
+      - ar_credit_memo_series_reset
+      - void_beginning_series
+      - void_ending_series
+      - void_series_reset
+
+    PosDocument:
+      description: Details of the POS
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the POS
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          type: string
+          description: Name of the POS
+          example: POS 1
+        machine_identification_number:
+          type: string
+          description: Machine identification number of the POS
+          example: 123456
+        serial_number:
+          type: string
+          description: Serial number of the POS
+          example: 123456
+        bir_permit_number:
+          type: string
+          description: BIR permit number of the POS
+          example: 123456
+        bir_permit_issued_date:
+          type: string
+          description: Issued date of the BIR permit
+          format: date
+          example: 2021-01-01
+        bir_permit_expiry_date:
+          type: string
+          description: Expiry date of the BIR permit
+          format: date
+          example: 2021-01-01
+        spm_permit_number:
+          type: string
+          description: Special purpose machine permit number assigned for the POS
+          example: 123456
+        spm_issued_date:
+          type: string
+          description: Issued date for the special purpose machine permit
+          format: date
+          example: 2021-01-01
+        spm_expiry_date:
+          type: string
+          description: Expiry date for the special purpose machine permit
+          format: date
+          example: 2021-01-01
+        software_provider:
+          type: object
+          description: Software provider details of the application used in the POS machine
+          properties:
+            name:
+              type: string
+              description: Name of the store
+              example: Store 1
+            address:
+              type: string
+              description: Address of the store
+              example: 123 Main St.
+            tax_identification_number:
+              type: string
+              description: Tax identification number of the store
+              example: 123-456-789-000
+            bir_accreditation_number:
+              type: string
+              description: BIR Accreditation number of the software
+              example: 123456
+            accreditation_issued_date:
+              type: string
+              description: Issued date of the accreditation
+              format: date
+              example: 2021-01-01
+            accreditation_expiry_date:
+              type: string
+              description: Expired date of the accreditation
+              format: date
+              example: 2021-01-01
+            version:
+              type: string
+              description: Version of the software
+              example: 1.0.0
+          required:
+            - name
+            - address
+            - tax_identification_number
+            - bir_accreditation_number
+            - accreditation_issued_date
+            - accreditation_expiry_date
+            - version
+        store:
+          type: object
+          description: Store details assigned for this POS
+          properties:
+            id:
+              type: string
+              description: Identifier for the store
+              example: 0000
+            name:
+              type: string
+              description: Name of the store
+              example: Store 1
+            address:
+              type: string
+              description: Address of the store
+              example: 123 Main St.
+            owned_by:
+              type: string
+              description: Owner of the store
+              example: Juan Luna
+            operated_by:
+              type: string
+              description: Operator of the store
+              example: Juan Luna
+            tax_identification_number:
+              type: string
+              description: Tax identification number of the store
+              example: 123-456-789-000
+            phone_number:
+              type: string
+              description: Phone number of the store
+              example: 1234567890
+          required:
+            - id
+            - name
+            - address
+            - owned_by
+            - operated_by
+            - tax_identification_number
+            - phone_number
+        business_date:
+          type: object
+          description: Business date assigned for this POS
+          properties:
+            id:
+              type: string
+              description: Identifier for the business date object
+              example: 123e4567-e89b-12d3-a456-426614174000
+            date:
+              type: string
+              description: Date assigned for this business date object
+              format: date
+              example: 2021-01-01
+          required:
+            - id
+            - date
+        shift:
+          type: object
+          description: Shift assigned for this POS
+          properties:
+            id:
+              type: string
+              description: Identifier for the shift object
+              example: 123e4567-e89b-12d3-a456-426614174000
+            shift_number:
+              type: string
+              description: Description for the shift
+              example: 1
+          required:
+            - id
+            - shift_number
+        z_readings:
+          type: object
+          description: Z Readings for the POS
+          $ref: '#/components/schemas/PosReadingDocument'
+        configuration:
+          type: array
+          description: Configuration settings for the POS Application
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                description: Key for the configuration setting
+                example: key1
+              value:
+                type: string
+                description: Value for the configuration setting
+                example: value1
+            required:
+              - key
+              - value
+        date_created:
+          type: string
+          description: Date created of the POS document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the POS document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+      required:
+        - id
+        - name
+        - serial_number
+        - software_provider
+        - store
+        - configuration
         - date_created
         - last_updated
