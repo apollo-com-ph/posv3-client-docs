@@ -1887,3 +1887,17 @@ components:
           items:
             type: string
           example: [READ, WRITE]
+        status:
+          type: string
+          description: Status of the user
+          example: ACTIVE
+        date_created:
+          type: string
+          description: Date created of the user document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the user document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
