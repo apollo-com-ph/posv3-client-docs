@@ -1856,3 +1856,34 @@ components:
         - configuration
         - date_created
         - last_updated
+
+    UserDocument:
+      description: User document
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the user
+          example: 123456
+        username:
+          type: string
+          description: Username of the user
+          example: user1
+        password:
+          type: string
+          description: Password for the user hashed using SHA256
+          example: 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
+        first_name:
+          type: string
+          description: First name of the user
+          example: Juan
+        last_name:
+          type: string
+          description: Last name of the user
+          example: Luna
+        permissions:
+          type: array
+          description: List of permissions assigned to the user
+          items:
+            type: string
+          example: [READ, WRITE]
