@@ -1901,3 +1901,343 @@ components:
           description: Last updated date of the user document
           format: date-time
           example: 2021-01-01T00:00:00Z
+
+    TransactioDocument:
+      description: POS Transaction document
+      type: object
+      properties:
+        id:
+          type: string
+          description: Database Identifier of the transaction
+          example: 123e4567-e89b-12d3-a456-426614174000
+        type:
+          type: string
+          description: Type of the transaction. Possible values [SALES, VOID, REFUND]
+          example: SALES
+        is_official_receipt:
+          type: boolean
+          description: Is the transaction an official receipt
+          example: true
+        is_training_mode:
+          type: boolean
+          description: Is the transaction in training mode
+          example: false
+        transaction_id:
+          type: string
+          description: Identifier of the transaction
+          example: 3458-100019485-1-L2NCM6N7
+        terminal_id:
+          type: string
+          description: Identifier of the pos machine
+          example: 1
+        receipt_number:
+          type: string
+          description: Receipt number of the transaction
+          example: 00000001
+        receipt_reset:
+          type: string
+          description: Receipt reset of the transaction
+          example: 0
+        void_number:
+          type: string
+          description: Void number of the transaction
+          example: 00000001
+        void_reset:
+          type: string
+          description: Void reset of the transaction
+          example: 0
+        credit_memo:
+          type: string
+          description: Credit memo of the transaction
+          example: 00000001
+        credit_memo_reset:
+          type: string
+          description: Credit memo reset of the transaction
+          example: 0
+        date_created:
+          type: string
+          description: Date created of the transaction document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        business_date:
+          type: string
+          description: Business date of the transaction
+          format: date
+          example: 2021-01-01
+        business_date_id:
+          type: string
+          description: Identifier of the business date
+          example: 123e4567-e89b-12d3-a456-426614174000
+        shift_number:
+          type: string
+          description: Shift number of the transaction
+          example: 1
+        shift_id:
+          type: string
+          description: Identifier of the shift
+          example: 123e4567-e89b-12d3-a456-426614174000
+        cashier_id:
+          type: string
+          description: Identifier of the cashier
+          example: 711001
+        cashier_name:
+          type: string
+          description: Name of the cashier
+          example: Juan Luna
+        manager_id:
+          type: string
+          description: Identifier of the manager
+          example: 711002
+        manager_name:
+          type: string
+          description: Name of the manager
+          example: Juan Luna
+        customer_type:
+          type: string
+          description: Type of the customer
+          example: SENIOR_CITIZEN
+        loyalty_card_number:
+          type: string
+          description: Loyalty card number of the customer
+          example: 1234-5678-9012
+        customer_details:
+          type: array
+          description: Details of the customer
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                description: Name of field
+                example: name
+              value:
+                type: string
+                description: value for the field
+                example: Juan Luna
+        items:
+          type: array
+          description: List of items in the transaction
+          items:
+            type: object
+            properties:
+              line_number:
+                type: number
+                description: Line number of the item in the transaction
+                example: 1
+              type:
+                type: string
+                description: Type of the item. Possible values [VATABLE, NON_VATABLE, VOID, REFUND]
+                example: VATABLE
+              quantity:
+                type: number
+                description: Quantity of the item
+                example: 1
+              unit_price:
+                type: number
+                description: Unit price of the item
+                example: 1000.00
+              gross_amount:
+                type: number
+                description: Gross amount of the item
+                example: 1000.00
+              net_amount:
+                type: number
+                description: Net amount of the item
+                example: 900.00
+              discount_amount:
+                type: number
+                description: Discount amount of the item
+                example: 100.00
+              vat_amount:
+                type: number
+                description: VAT amount of the item
+                example: 100.00
+              vatable_amount:
+                type: number
+                description: Vatable amount of the item
+                example: 1000.00
+              non_vatable_amount:
+                type: number
+                description: Non-vatable amount of the item
+                example: 0.00
+              tax_rate:
+                type: number
+                description: Tax rate for the item of the transaction
+                example: 0.12
+              product:
+                type: object
+                description: Product associated with the item
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of the product
+                    example: 123456
+                  long_name:
+                    type: string
+                    description: Unabbreviated name of the product
+                    example: Product 1
+                  short_name:
+                    type: string
+                    description: Abbreviated name of the product
+                    maxLength: 50
+                    example: Prod1
+                  barcode:
+                    type: string
+                    description: Barcode of the item
+                    example: 1234567890123
+                  categories:
+                    type: array
+                    description: List of category IDs assigned to the product
+                    items:
+                      type: string
+                      example: [REGULAR_ITEM]
+              remarks:
+                type: string
+                description: Remarks for the item
+                example: No remarks
+        adjustments:
+          type: array
+          description: List of adjustments in the transaction
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Type of the adjustment. Possible values [DISCOUNT, GOVERNMENT_DISCOUNT]
+                example: GOVERNMENT_DISCOUNT
+              promo_id:
+                type: string
+                description: Identifier of the Promo
+                example: 123e4567-e89b-12d3-a456-426614174000
+              promo_name:
+                type: string
+                description: Name of the Promo
+                example: SENIOR CITIZEN DISCOUNT
+              non_cash_code:
+                type: string
+                description: NonCash identifier of the Promo
+                example: 20190911-0010
+              total_discounted_amount:
+                type: number
+                description: Amount of the adjustment
+                example: 100.00
+              quantity:
+                type: number
+                description: Number of times the adjustment was applied
+                example: 1
+              remarks:
+                type: string
+                description: Remarks for the adjustment
+                example: Senior Citizen Discount
+        rewards:
+          type: array
+          description: List of rewards in the transaction
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Type of the reward. Possible values [PRODUCT, VOUCHER]
+                example: PRODUCT
+              promo_id:
+                type: string
+                description: Identifier of the Promo
+                example: 123e4567-e89b-12d3-a456-426614174000
+              promo_name:
+                type: string
+                description: Name of the Promo
+                example: SENIOR CITIZEN DISCOUNT
+              non_cash_code:
+                type: string
+                description: NonCash identifier of the Promo
+                example: 20190911-0010
+              reward_id:
+                type: string
+                description: Identifier of the product or voucher
+                example: 123e4567-e89b-12d3-a456-426614174000
+              rewards_tx_code:
+                type: string
+                description: TX Code of the reward
+                example: 123456
+              rewards_vx_code:
+                type: string
+                description: VX Code of the reward
+                example: 123456
+              quantity:
+                type: number
+                description: Number of rewards given
+                example: 1
+              remarks:
+                type: string
+                description: Remarks for the reward
+                example: Free Coke
+        payments:
+          type: array
+          description: List of payments in the transaction
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Type of the payment. Possible values [CASH, CARD, GIFT_CHECK, EPAYMENT]
+                example: CASH
+              amount:
+                type: number
+                description: Amount of the payment
+                example: 1000.00
+              currency:
+                type: string
+                description: Currency of the payment
+                default: PHP
+              details:
+                type: object
+                description: Other details of the payment
+                example: {card_number: 1234567890123456, card_type: VISA}
+        amount_currency:
+          type: string
+          description: Currency of the amount
+          default: PHP
+        gross_amount:
+          type: number
+          description: Gross amount of the item
+          example: 1000.00
+        net_amount:
+          type: number
+          description: Net amount of the item
+          example: 900.00
+        discount_amount:
+          type: number
+          description: Discount amount of the item
+          example: 100.00
+        vat_amount:
+          type: number
+          description: VAT amount of the item
+          example: 100.00
+        vatable_amount:
+          type: number
+          description: Vatable amount of the item
+          example: 1000.00
+        non_vatable_amount:
+          type: number
+          description: Non-vatable amount of the item
+          example: 0.00
+        amount_paid:
+          type: number
+          description: Amount paid for the transaction
+          example: 1000.00
+        amount_change:
+          type: number
+          description: Change amount of the transaction
+          example: 0.00
+        total_quantity:
+          type: number
+          description: Total number of items of the transaction
+          example: 10
+        reason_id:
+          type: string
+          description: Identifier of the reason for refund transaction
+          example: 123e4567-e89b-12d3-a456-426614174000
+        reason:
+          type: string
+          description: Reason for refund transaction
+          example: Defective
