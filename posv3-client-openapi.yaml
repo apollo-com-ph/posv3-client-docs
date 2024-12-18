@@ -1284,9 +1284,29 @@ components:
           example: 123e4567-e89b-12d3-a456-426614174000
         business_date:
           type: string
-          description: Date assigned for this business date object
+          description: Business date of the transaction
           format: date
           example: 2021-01-01
+        is_training_mode:
+          type: boolean
+          description: Is the event in training mode
+          example: false
+        terminal_id:
+          type: string
+          description: Identifier of the pos machine
+          example: 1
+        store_id:
+          type: string
+          description: Identifier of the store
+          example: 0000
+        cashier_id:
+          type: string
+          description: Identifier of the cashier
+          example: 711001
+        cashier_name:
+          type: string
+          description: Name of the cashier
+          example: Juan Luna
         start_date:
           type: string
           description: Start date of the business date
@@ -1319,6 +1339,9 @@ components:
           example: 2021-01-01T00:00:00Z
       required:
         - business_date
+        - cashier_id
+        - is_training_mode
+        - terminal_id
         - start_date
         - x_readings
         - z_readings
@@ -1335,8 +1358,37 @@ components:
           example: 123e4567-e89b-12d3-a456-426614174000
         shift_number:
           type: string
-          description: Description for the shift
+          description: Shift number of the transaction
           example: 1
+        is_training_mode:
+          type: boolean
+          description: Is the event in training mode
+          example: false
+        terminal_id:
+          type: string
+          description: Identifier of the pos machine
+          example: 1
+        store_id:
+          type: string
+          description: Identifier of the store
+          example: 0000
+        business_date:
+          type: string
+          description: Business date of the transaction
+          format: date
+          example: 2021-01-01
+        business_date_id:
+          type: string
+          description: Identifier of the business date
+          example: 123e4567-e89b-12d3-a456-426614174000
+        cashier_id:
+          type: string
+          description: Identifier of the cashier
+          example: 711001
+        cashier_name:
+          type: string
+          description: Name of the cashier
+          example: Juan Luna
         start_date:
           type: string
           description: Start date of the business date
@@ -1347,22 +1399,6 @@ components:
           description: End date of the business date
           format: date-time
           example: 2021-01-01T23:59:59Z
-        business_date:
-          type: object
-          description: Business date assigned for this shift
-          properties:
-            id:
-              type: string
-              description: Identifier for the business date object
-              example: 123e4567-e89b-12d3-a456-426614174000
-            date:
-              type: string
-              description: Date assigned for this business date object
-              format: date
-              example: 2021-01-01
-          required:
-            - id
-            - date
         s_readings:
           type: object
           description: Shift Readings for the shift
@@ -1378,29 +1414,16 @@ components:
           description: Last updated date of the business date document
           format: date-time
           example: 2021-01-01T00:00:00Z
-        cashier_id:
-          type: object
-          description: Cashier details assigned for this shift
-          properties:
-            id:
-              type: string
-              description: Identifer for the cashier
-              example: 711001
-            name:
-              type: string
-              description: Name of the cashier
-              example: Juan Luna
-          required:
-            - id
-            - name
       required:
         - shift_number
         - business_date
         - start_date
         - s_readings
+        - cashier_id
+        - is_training_mode
+        - terminal_id
         - date_created
         - last_updated
-        - cashier_id
 
     PosReadingDocument:
       description: POS reading document
@@ -1902,6 +1925,81 @@ components:
           format: date-time
           example: 2021-01-01T00:00:00Z
 
+    EventDocument:
+      type: object
+      description: POS Event document
+      properties:
+        id:
+          type: string
+          description: Identifier of the event
+          example: 123e4567-e89b-12d3-a456-426614174000
+        type:
+          type: string
+          description: Type of the event. Possible values [SALES, VOID, REFUND, LOGIN, LOGOUT, SHIFT_START, SHIFT_END, DAY_START, DAY_END]
+          example:
+        date_created:
+          type: string
+          description: Date created of the event document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        is_training_mode:
+          type: boolean
+          description: Is the event in training mode
+          example: false
+        receipt_number:
+          type: string
+          description: Receipt number assigned if event is a transaction
+          example: 00000001
+        receipt_reset:
+          type: string
+          description: Receipt reset assigned if event is a transaction
+          example: 0
+        transaction_id:
+          type: string
+          description: Identifier of the transaction
+          example: 3458-100019485-1-L2NCM6N7
+        terminal_id:
+          type: string
+          description: Identifier of the pos machine
+          example: 1
+        store_id:
+          type: string
+          description: Identifier of the store
+          example: 0000
+        shift_number:
+          type: string
+          description: Shift number of the transaction
+          example: 1
+        shift_id:
+          type: string
+          description: Identifier of the shift
+          example: 123e4567-e89b-12d3-a456-426614174000
+        business_date:
+          type: string
+          description: Business date of the transaction
+          format: date
+          example: 2021-01-01
+        business_date_id:
+          type: string
+          description: Identifier of the business date
+          example: 123e4567-e89b-12d3-a456-426614174000
+        cashier_id:
+          type: string
+          description: Identifier of the cashier
+          example: 711001
+        cashier_name:
+          type: string
+          description: Name of the cashier
+          example: Juan Luna
+        receipt_printout:
+          type: string
+          description: Receipt printout of the event
+          example: "************ Log In ************\n711001\nLogin successful!\n--------------------------------"
+        data:
+          type: object
+          description: Data of the event. See schema from #/components/schemas/TransactionDocument, #/components/schemas/CashManagementDocument, #/components/schemas/ShiftDocument, #/components/schemas/BusinessDateDocument
+          example: {login: true}
+
     TransactioDocument:
       description: POS Transaction document
       type: object
@@ -1930,6 +2028,10 @@ components:
           type: string
           description: Identifier of the pos machine
           example: 1
+        store_id:
+          type: string
+          description: Identifier of the store
+          example: 0000
         receipt_number:
           type: string
           description: Receipt number of the transaction
@@ -2090,7 +2192,7 @@ components:
                     description: List of category IDs assigned to the product
                     items:
                       type: string
-                      example: [REGULAR_ITEM]
+                      example: [REGULAR_ITEM, SC_20, PWD_20]
               remarks:
                 type: string
                 description: Remarks for the item
@@ -2241,3 +2343,58 @@ components:
           type: string
           description: Reason for refund transaction
           example: Defective
+
+    CashMovementDocument:
+      description: Cash Movement document
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the cash movement
+          example: 123e4567-e89b-12d3-a456-426614174000
+        type:
+          type: string
+          description: Type of the cash mod. Possible values [CASH_ADD, CASH_DROP]
+          example: CASH_ADD
+        terminal_id:
+          type: string
+          description: Identifier of the pos machine
+          example: 1
+        store_id:
+          type: string
+          description: Identifier of the store
+          example: 0000
+        shift_id:
+          type: string
+          description: Identifier of the shift
+          example: 123e4567-e89b-12d3-a456-426614174000
+        shift_number:
+          type: string
+          description: Shift number of the transaction
+          example: 1
+        business_date:
+          type: string
+          description: Business date of the transaction
+          format: date
+          example: 2021-01-01
+        business_date_id:
+          type: string
+          description: Identifier of the business date
+          example: 123e4567-e89b-12d3-a456-426614174000
+        cashier_id:
+          type: string
+          description: Identifier of the cashier
+          example: 711001
+        cashier_name:
+          type: string
+          description: Name of the cashier
+          example: Juan Luna
+        date_created:
+          type: string
+          description: Date created of the cash add document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        amount:
+          type: number
+          description: Amount of the cash moved
+          example: 1000.00
