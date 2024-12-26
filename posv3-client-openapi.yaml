@@ -2398,3 +2398,8 @@ components:
           type: number
           description: Amount of the cash moved
           example: 1000.00
+        envelope_number:
+          type: string
+          description: Envelope number where the cash is placed
+          example: 123456
+		
