@@ -780,6 +780,14 @@ components:
       description: Device print request
       type: object
       properties:
+        template:
+          type: string
+          description: Template name for the print. Use freemarker syntax as template.
+          example: Receipt# ${transaction.receipt_number}\n\nTotal Amount Php${transaction.total_amount}
+        template_data:
+          type: object
+          description: Data to be used in the template
+          example: {transaction: {receipt_number: 123456, total_amount: 100.00}}
         text:
           type: string
           description: Text data to print. Use markdown for formatting.
@@ -2287,6 +2295,10 @@ components:
                 type: number
                 description: Amount of the payment
                 example: 1000.00
+              amount_change:
+                type: number
+                description: Change amount of the payment
+                example: 0.00
               currency:
                 type: string
                 description: Currency of the payment
@@ -2297,39 +2309,43 @@ components:
                 example: {card_number: 1234567890123456, card_type: VISA}
         amount_currency:
           type: string
-          description: Currency of the amount
+          description: Currency for the transaction
           default: PHP
-        gross_amount:
+        total_gross_amount:
           type: number
-          description: Gross amount of the item
+          description: Gross amount of the transaction
           example: 1000.00
-        net_amount:
+        total_net_amount:
           type: number
-          description: Net amount of the item
+          description: Net amount of the transaction
           example: 900.00
-        discount_amount:
+        total_discount_amount:
           type: number
-          description: Discount amount of the item
+          description: Discount amount of the transaction
           example: 100.00
-        vat_amount:
+        total_vat_amount:
           type: number
-          description: VAT amount of the item
+          description: VAT amount of the transaction
           example: 100.00
-        vatable_amount:
+        total_vatable_amount:
           type: number
-          description: Vatable amount of the item
+          description: Vatable amount of the transaction
           example: 1000.00
-        non_vatable_amount:
+        total_non_vatable_amount:
           type: number
-          description: Non-vatable amount of the item
+          description: Non-vatable amount of the transaction
           example: 0.00
-        amount_paid:
+        total_zero_rated_amount:
           type: number
-          description: Amount paid for the transaction
+          description: Total Zero rated amount of the transaction
+          example: 0.00
+        total_amount_paid:
+          type: number
+          description: Total Amount paid for the transaction
           example: 1000.00
-        amount_change:
+        total_amount_change:
           type: number
-          description: Change amount of the transaction
+          description: Total Change amount of the transaction
           example: 0.00
         total_quantity:
           type: number
