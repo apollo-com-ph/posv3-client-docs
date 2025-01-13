@@ -1237,6 +1237,13 @@ components:
               description: Abbreviated name of the product
               maxLength: 50
               example: Prod1
+            prices:
+              type: array
+              description: Prices of the product
+              items:
+                type: object
+                $ref: '#/components/schemas/ProductPriceDocument'
+              example: [{price: 10.00, currency: PHP, type: RETAIL, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z}]
         items:
           type: array
           description: List of sub menu items
