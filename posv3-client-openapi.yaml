@@ -1134,58 +1134,6 @@ components:
         - from_date
         - to_date
 
-    BarcodeDocument:
-      description: Barcode document
-      type: object
-      properties:
-        barcode:
-          type: string
-          description: Barcode value
-          example: 1234567890123
-        product:
-          type: object
-          description: Product associated with the barcode
-          properties:
-            id:
-              type: string
-              description: Identifier of the product
-              example: 123456
-            long_name:
-              type: string
-              description: Unabbreviated name of the product
-              example: Product 1
-            short_name:
-              type: string
-              description: Abbreviated name of the product
-              maxLength: 50
-              example: Prod1
-        from_date:
-          type: string
-          description: Start date of the barcode
-          format: date-time
-          example: 2021-01-01T00:00:00Z
-        to_date:
-          type: string
-          description: End date of the barcode
-          format: date-time
-          example: 2021-12-31T23:59:59Z
-        date_created:
-          type: string
-          description: Date created of the barcode document
-          format: date-time
-          example: 2021-01-01T00:00:00Z
-        last_updated:
-          type: string
-          description: Last updated date of the barcode document
-          format: date-time
-          example: 2021-01-01T00:00:00Z
-      required:
-        - id
-        - barcode
-        - type
-        - date_created
-        - last_updated
-
     PosMenuDocument:
       description: POS menu document
       type: object
@@ -1286,6 +1234,225 @@ components:
       required:
         - label
         - from_date
+        - date_created
+        - last_updated
+
+    DiscountDocument:
+      description: Data for discount conditions and calculations
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the discount
+          example: 123456
+        discount_type:
+          type: string
+          description: Type of discount [GOVERNMENT_DISCOUNT, PROMO_DISCOUNT]
+          example: PROMO_DISCOUNT
+        non_cash_code:
+          type: string
+          description: NonCash identifier of the Discount
+          example: 20190911-0010
+        name:
+          type: string
+          description: Name of the discount
+          example: Senior Citizen Discount
+        short_name:
+          type: string
+          description: Abbreviated name of the discount
+          example: SC DISCOUNT
+        is_greedy:
+          type: boolean
+          description: Is the discount greedy
+          example: false
+        sequence_num:
+          type: integer
+          description: Sequence of the discount when evaluating (1 as first)
+          example: 1
+        use_limit_per_customer:
+          type: integer
+          description: Limit of usage per customer (0 for unlimited)
+          example: 0
+        use_limit_per_order:
+          type: integer
+          description: Limit of usage per transaction (0 for unlimited)
+          example: 0
+        use_limit_per_promotion:
+          type: integer
+          description: Limit of number of type of discounts that can be applied per transaction (0 for unlimited)
+          example: 0
+        generate_report:
+          type: boolean
+          description: Generate end of shift / day report for the discount
+          example: false
+        from_date:
+          type: string
+          description: Start date of the discount
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        to_date:
+          type: string
+          description: End date of the discount
+          format: date-time
+          example: 2021-12-31T23:59:59Z
+        conditions:
+          type: array
+          description: List of conditions for the discount
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Identifier of the discount condition
+                example: 123456
+              description:
+                type: string
+                description: Description of the discount condition
+                example: Product in Senior Citizen Category
+              condition_type:
+                type: string
+                description: Type of discount condition [PRODUCT_QUANTITY, PRODUCT_TOTAL_AMOUNT, ORDER_TOTAL_QUANTITY, ORDER_TOTAL_AMOUNT, CUSTOMER_TYPE, SCHEDULE]
+                example: PRODUCT_QUANTITY
+              operation:
+                type: string
+                description: Operation of the discount condition [EQUAL, NOT_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL]
+                example: GREATER_THAN
+              value:
+                type: string
+                description: Value of the discount condition
+                example: 1
+              sequence_num:
+                type: integer
+                description: Sequence of when evaluating conditions (1 as first)
+                example: 2
+              product:
+                type: object
+                description: Product associated with the discount condition
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of the product
+                    example: 123456
+                  long_name:
+                    type: string
+                    description: Unabbreviated name of the product
+                    example: Product 1
+              category:
+                type: object
+                description: Category associated with the discount condition
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of the category
+                    example: 123456
+                  name:
+                    type: string
+                    description: Name of the category
+                    example: Food
+        actions:
+          type: array
+          description: List of actions for the discount
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Identifier of the discount action
+                example: 123456
+              description:
+                type: string
+                description: Description of the discount action
+                example: Apply 10% discount
+              action_type:
+                type: string
+                description: Type of discount action [SET_PRODUCT_PRICE, PRODUCT_FIXED_PRICE_DEDUCTION, PRODUCT_PERCENTAGE_PRICE_DEDUCTION, ORDER_FIXED_PRICE_DEDUCTION, ORDER_PERCENTAGE_PRICE_DEDUCTION, GIFT_WITH_PURCHASE_LIST, GIFT_WITH_PURCHASE_RANDOM]
+                example: PRODUCT_PERCENTAGE_PRICE_DEDUCTION
+              value:
+                type: string
+                description: Value of the discount action
+                example: 10
+              quantity:
+                type: integer
+                description: Number of times to apply the action
+                example: 1
+              sequence_num:
+                type: integer
+                description: Sequence of when applying actions (1 as first)
+                example: 1
+              product:
+                type: object
+                description: Product associated with the discount action
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of the product
+                    example: 123456
+                  long_name:
+                    type: string
+                    description: Unabbreviated name of the product
+                    example: Product 1
+              category:
+                type: object
+                description: Category associated with the discount action
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of the category
+                    example: 123456
+                  name:
+                    type: string
+                    description: Name of the category
+                    example: Food
+
+    BarcodeDocument:
+      description: Barcode document
+      type: object
+      properties:
+        barcode:
+          type: string
+          description: Barcode value
+          example: 1234567890123
+        product:
+          type: object
+          description: Product associated with the barcode
+          properties:
+            id:
+              type: string
+              description: Identifier of the product
+              example: 123456
+            long_name:
+              type: string
+              description: Unabbreviated name of the product
+              example: Product 1
+            short_name:
+              type: string
+              description: Abbreviated name of the product
+              maxLength: 50
+              example: Prod1
+        from_date:
+          type: string
+          description: Start date of the barcode
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        to_date:
+          type: string
+          description: End date of the barcode
+          format: date-time
+          example: 2021-12-31T23:59:59Z
+        date_created:
+          type: string
+          description: Date created of the barcode document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the barcode document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+      required:
+        - id
+        - barcode
+        - type
         - date_created
         - last_updated
 
