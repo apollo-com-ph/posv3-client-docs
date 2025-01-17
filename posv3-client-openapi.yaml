@@ -1211,6 +1211,10 @@ components:
           type: string
           description: Background color of the menu item
           example: #FFFFFF
+        sequence:
+          type: integer
+          description: Sequence of the menu item
+          example: 1
         from_date:
           type: string
           description: Start date of the barcode
