@@ -1017,7 +1017,7 @@ components:
           items:
             type: object
             $ref: '#/components/schemas/ProductPriceDocument'
-          example: [{price: 10.00, currency: PHP, type: RETAIL, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z}]
+          example: [{price: 10.00, currency: PHP, type: RETAIL, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z, vat_percentage: 12.00}]
         costs:
           type: array
           description: Costs of the product
@@ -1025,10 +1025,6 @@ components:
             type: object
             $ref: '#/components/schemas/ProductPriceDocument'
           example: [{price: 5.00, currency: PHP, type: COST, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z}]
-        tax_rate:
-          type: number
-          description: Tax rate of the product
-          example: 0.12
         is_consigned:
           type: boolean
           description: Is the product consigned
@@ -1109,6 +1105,10 @@ components:
         price:
           type: number
           description: Price of the product
+          example: 10.00
+        vat_percentage:
+          type: number
+          description: VAT percentage applicable to the price
           example: 10.00
         currency:
           type: string
@@ -1789,17 +1789,57 @@ components:
                 type: string
                 description: Type of total
                 example: merchandise_sales
-              amount:
+              gross_amount:
                 type: number
-                description: Total amount for the type
+                description: Total gross amount for the type
                 example: 1000.00
-              count:
+              net_amount:
+                type: number
+                description: Total net amount for the type
+                example: 1000.00
+              vatable_amount:
+                type: number
+                description: Total vatable amount for the type
+                example: 1000.00
+              vat_amount:
+                type: number
+                description: Total vat amount for the type
+                example: 1000.00
+              cost_payable:
+                type: number
+                description: Total cost payable for the type
+                example: 1000.00
+              service_charge:
+                type: number
+                description: Total service charge for the type
+                example: 1000.00
+              commission:
+                type: number
+                description: Total commission for the type
+                example: 1000.00
+              discounted_amount:
+                type: number
+                description: Total discounted amount for the type
+                example: 1000.00
+              refund_amount:
+                type: number
+                description: Total refund amount for the type
+                example: 1000.00
+              transaction_count:
                 type: number
                 description: Number of transactions for the type
                 example: 100
+              refund_count:
+                type: number
+                description: Number of refunds for the type
+                example: 100
+              discount_count:
+                type: number
+                description: Number of discounts for the type
+                example: 100
         lists:
           type: array
-          description: enumerated list related to the business date (e.g. EPayments, Online transactions, etc)
+          description: enumerated list used within the duration of the reading (e.g. Products, EPayments, Online transactions, etc)
           items: 
             type: object
             properties:
@@ -1817,9 +1857,13 @@ components:
                       type: string
                       description: Details of an item
                       example: MayaQR-12332123
+                    quantity:
+                      type: number
+                      description: Number of item used
+                      example: 1
                     amount:
                       type: number
-                      description: Amount for the item
+                      description: Total Amount of the item
                       example: 1000.00
       required:
       - or_beginning_series
@@ -1986,14 +2030,17 @@ components:
               type: string
               description: Phone number of the store
               example: 1234567890
+            is_non_vat_registration:
+              type: boolean
+              description: Store is registered as non VAT
+              default: false
           required:
             - id
             - name
-            - address
             - owned_by
             - operated_by
             - tax_identification_number
-            - phone_number
+            - is_non_vat_registration
         business_date:
           type: object
           description: Business date assigned for this POS
