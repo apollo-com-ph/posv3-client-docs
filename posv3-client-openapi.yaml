@@ -1920,6 +1920,10 @@ components:
           type: string
           description: Name of the POS
           example: POS 1
+        terminal_id:
+          type: string
+          description: Terminal identification number of the POS
+          example: 1
         machine_identification_number:
           type: string
           description: Machine identification number of the POS
