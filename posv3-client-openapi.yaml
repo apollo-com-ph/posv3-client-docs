@@ -2093,6 +2093,11 @@ components:
             required:
               - key
               - value
+        pos_messages:
+          type: array
+          description: Messages displayed on the POS
+          items:
+            $ref: '#/components/schemas/PosMessageDocument'
         date_created:
           type: string
           description: Date created of the POS document
@@ -2157,6 +2162,52 @@ components:
           description: Last updated date of the user document
           format: date-time
           example: 2021-01-01T00:00:00Z
+
+    ReceiptTemplateDocument:
+      type: object
+      description: Receipt Template document
+      properties:
+        id:
+          type: string
+          description: Identifier of the receipt template
+          example: LOGIN
+        description:
+          type: string
+          description: description of the receipt template
+          example: Login receipt template
+        template:
+          type: string
+          description: Template of the receipt
+          example: "|*Log In*|\n${username}\n${login_date}\nLogin successful!\n|---|"
+
+    PosMessageDocument:
+      type: object
+      description: Messages displayed on the POS
+      properties:
+        id:
+          type: string
+          description: Identifier of the pos message
+          example: 123e4567-e89b-12d3-a456-426614174000
+        description:
+          type: string
+          description: description of the pos message
+          example: Login receipt template
+        type:
+          type: string
+          description: Type of message to display. Possible values [NEXT_CUSTOMER, OUT_OF_SERVICE, RECEIPT_FOOTER, CUSTOMER_DISPLAY_CENTER_AD, CUSTOMER_DISPLAY_TEXT_AD]
+          example: 
+        value:
+          type: string
+          description: Value to display. File data should be prefixed by file:// or http://
+          example:
+        sequence:
+          type: number
+          description: Sequence of the message if multiple types are found
+          example: 1
+        schedule:
+          type: string
+          description: Schedule in cron format when to display message when applicable
+          example: "0 0 0 * * *"
 
     EventDocument:
       type: object
