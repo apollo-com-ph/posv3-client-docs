@@ -1027,7 +1027,19 @@ components:
           example: [{price: 5.00, currency: PHP, type: COST, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z}]
         is_consigned:
           type: boolean
-          description: Is the product consigned
+          description: Proudct is consigned
+          default: false
+        is_serializable:
+          type: boolean
+          description: Product is serialized
+          default: false
+        is_returnable:
+          type: boolean
+          description: Product can be returned
+          default: false
+        is_for_acknowledgement_receipt:
+          type: boolean
+          description: Sale of product requires acknowledgement receipt
           default: false
         discontinued_date:
           type: string
@@ -1044,10 +1056,34 @@ components:
           description: Last updated date of the product document
           format: date-time
           example: 2021-01-01T00:00:00Z
-#       brand:
-#       attributes:
-#       cross_sell_products:
-#       bill_of_materials:
+        brand:
+          type: string
+          description: Brand of the product
+          example: Brand 1
+        attributes:
+          type: object
+          description: Attributes of the product
+          properties:
+            key:
+              type: string
+              description: Attribute key
+              example: color
+            value:
+              type: string
+              description: Attribute value
+              example: red
+        cross_sell_products:
+          type: array
+          description: List of product IDS to cross sell
+          items:
+            type: string
+            example: product123
+        bill_of_materials:
+          type: array
+          description: List of product IDs for bill of materials
+          items:
+            type: string
+            example: product123
       required:
         - id
         - long_name
