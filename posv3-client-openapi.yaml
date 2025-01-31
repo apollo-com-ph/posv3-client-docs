@@ -1815,6 +1815,10 @@ components:
           type: number
           description: Void credit memo series reset
           example: 0
+        cash_tender_total:
+          type: number
+          description: Total cash tendered
+          example: 1000.00
         totals:
           type: array
           description: agregated totals for the business date
@@ -2081,41 +2085,6 @@ components:
             - operated_by
             - tax_identification_number
             - is_non_vat_registration
-        business_date:
-          type: object
-          description: Business date assigned for this POS
-          properties:
-            id:
-              type: string
-              description: Identifier for the business date object
-              example: 123e4567-e89b-12d3-a456-426614174000
-            date:
-              type: string
-              description: Date assigned for this business date object
-              format: date
-              example: 2021-01-01
-          required:
-            - id
-            - date
-        shift:
-          type: object
-          description: Shift assigned for this POS
-          properties:
-            id:
-              type: string
-              description: Identifier for the shift object
-              example: 123e4567-e89b-12d3-a456-426614174000
-            shift_number:
-              type: string
-              description: Description for the shift
-              example: 1
-          required:
-            - id
-            - shift_number
-        z_readings:
-          type: object
-          description: Z Readings for the POS
-          $ref: '#/components/schemas/PosReadingDocument'
         configuration:
           type: array
           description: Configuration settings for the POS Application
