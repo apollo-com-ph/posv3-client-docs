@@ -1036,7 +1036,7 @@ components:
         is_returnable:
           type: boolean
           description: Product can be returned
-          default: false
+          default: true
         is_for_acknowledgement_receipt:
           type: boolean
           description: Sale of product requires acknowledgement receipt
