@@ -2293,7 +2293,7 @@ components:
           description: Data of the event. See schema for TransactionDocument, CashManagementDocument, ShiftDocument, BusinessDateDocument
           example: {login: true}
 
-    TransactioDocument:
+    TransactionDocument:
       description: POS Transaction document
       type: object
       properties:
