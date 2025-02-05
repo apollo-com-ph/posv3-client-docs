@@ -1543,12 +1543,10 @@ components:
           type: object
           description: X Readings for the business date
           $ref: '#/components/schemas/PosReadingDocument'
-          example: {or_beginning_series: 000000, or_ending_series: 000001, or_beginning_sales: 1000.00, or_ending_sales: 2000.00, or_series_reset: 0, or_transaction_count: 100, or_gross_sales: 10000.00, or_net_sales: 9000.00, or_total_vatable_sales: 8000.00, or_total_vat_exempt_sales: 1000.00, or_total_zero_rated_sales: 0.00, or_total_vat_amount: 1000.00, or_total_discount: 1000.00, or_total_item_refund: 1000.00, or_total_receipt_refund: 1000.00, or_total_refund: 1000.00, or_credit_memo_beginning_series: 000000, or_credit_memo_ending_series: 000001, or_credit_memo_series_reset: 0, ar_beginning_series: 000000, ar_ending_series: 000001, ar_beginning_sales: 1000.00, ar_ending_sales: 2000.00, ar_series_reset: 0, ar_transaction_count: 100, ar_gross_sales: 10000.00, ar_net_sales: 9000.00, ar_total_vatable_sales: 8000.00, ar_total_vat_exempt_sales: 1000.00, ar_total_zero_rated_sales: 0.00, ar_total_vat_amount: 1000.00, ar_total_discount: 1000.00, ar_total_item_refund: 1000.00, ar_total_receipt_refund: 1000.00, ar_total_refund: 1000.00}
         z_readings:
           type: object
-          description: Z Readings for the business date
+          description: Z Readings as of this business date
           $ref: '#/components/schemas/PosReadingDocument'
-          example: {or_beginning_series: 000000, or_ending_series: 000001, or_beginning_sales: 1000.00, or_ending_sales: 2000.00, or_series_reset: 0, or_transaction_count: 100, or_gross_sales: 10000.00, or_net_sales: 9000.00, or_total_vatable_sales: 8000.00, or_total_vat_exempt_sales: 1000.00, or_total_zero_rated_sales: 0.00, or_total_vat_amount: 1000.00, or_total_discount: 1000.00, or_total_item_refund: 1000.00, or_total_receipt_refund: 1000.00, or_total_refund: 1000.00, or_credit_memo_beginning_series: 000000, or_credit_memo_ending_series: 000001, or_credit_memo_series_reset: 0, ar_beginning_series: 000000, ar_ending_series: 000001, ar_beginning_sales: 1000.00, ar_ending_sales: 2000.00, ar_series_reset: 0, ar_transaction_count: 100, ar_gross_sales: 10000.00, ar_net_sales: 9000.00, ar_total_vatable_sales: 8000.00, ar_total_vat_exempt_sales: 1000.00, ar_total_zero_rated_sales: 0.00, ar_total_vat_amount: 1000.00, ar_total_discount: 1000.00, ar_total_item_refund: 1000.00, ar_total_receipt_refund: 1000.00, ar_total_refund: 1000.00}
         date_created:
           type: string
           description: Date created of the business date document
@@ -1625,7 +1623,10 @@ components:
           type: object
           description: Shift Readings for the shift
           $ref: '#/components/schemas/PosReadingDocument'
-          example: {or_beginning_series: 000000, or_ending_series: 000001, or_beginning_sales: 1000.00, or_ending_sales: 2000.00, or_series_reset: 0, or_transaction_count: 100, or_gross_sales: 10000.00, or_net_sales: 9000.00, or_total_vatable_sales: 8000.00, or_total_vat_exempt_sales: 1000.00, or_total_zero_rated_sales: 0.00, or_total_vat_amount: 1000.00, or_total_discount: 1000.00, or_total_item_refund: 1000.00, or_total_receipt_refund: 1000.00, or_total_refund: 1000.00, or_credit_memo_beginning_series: 000000, or_credit_memo_ending_series: 000001, or_credit_memo_series_reset: 0, ar_beginning_series: 000000, ar_ending_series: 000001, ar_beginning_sales: 1000.00, ar_ending_sales: 2000.00, ar_series_reset: 0, ar_transaction_count: 100, ar_gross_sales: 10000.00, ar_net_sales: 9000.00, ar_total_vatable_sales: 8000.00, ar_total_vat_exempt_sales: 1000.00, ar_total_zero_rated_sales: 0.00, ar_total_vat_amount: 1000.00, ar_total_discount: 1000.00, ar_total_item_refund: 1000.00, ar_total_receipt_refund: 1000.00, ar_total_refund: 1000.00}
+        z_readings:
+          type: object
+          description: Z Readings as of this shift
+          $ref: '#/components/schemas/PosReadingDocument'
         date_created:
           type: string
           description: Date created of the business date document
@@ -1641,6 +1642,7 @@ components:
         - business_date
         - start_date
         - s_readings
+        - z_readings
         - cashier_id
         - is_training_mode
         - terminal_id
@@ -1651,232 +1653,105 @@ components:
       description: POS reading document
       type: object
       properties:
-        or_beginning_series:
-          type: string
-          description: Official beginning series
-          example: 000000
-        or_ending_series:
-          type: string
-          description: Official Receipt ending series
-          example: 000001
-        or_beginning_sales:
+        or:
+          type: object
+          description: Official Receipt data
+          $ref: '#/components/schemas/TransactionReadingDocument'
+        ar:
+          type: object
+          description: Acknowledgement Receipt data
+          $ref: '#/components/schemas/TransactionReadingDocument'
+        void:
+          type: object
+          description: Void Transaction data
+          $ref: '#/components/schemas/TransactionReadingDocument'
+        credit_memo:
+          type: object
+          description: Credit Memo (Refunds) data
+          $ref: '#/components/schemas/TransactionReadingDocument'
+        drawer_starting_float:
           type: number
-          description: Official Receipt beginning sales
-          example: 1000.00
-        or_ending_sales:
+          description: Amount of cash in drawer at the start of the shift
+          default: 0.00
+        drawer_ending_float:
           type: number
-          description: Official Receipt ending sales
-          example: 2000.00
-        or_series_reset:
+          description: Amount of cash in drawer at the end of the shift
+          default: 0.00
+        cash_add_amount:
           type: number
-          description: Official Receipt series reset
-          example: 0
-        or_transaction_count:
+          description: Total Amount of cash add made during the shift
+          default: 0.00
+        cash_add_count:
           type: number
-          description: Official Receipt transaction count
-          example: 100
-        or_gross_sales:
+          description: Total Number of cash add made during the shift
+          default: 0.00
+        cash_drop_amount:
           type: number
-          description: Official Receipt gross sales
-          example: 10000.00
-        or_net_sales:
+          description: Total Amount of cash drop made during the shift
+          default: 0.00
+        cash_drop_count:
           type: number
-          description: Official Receipt net sales
-          example: 9000.00
-        or_total_vatable_sales:
-          type: number
-          description: Official Receipt total vatable sales
-          example: 8000.00
-        or_total_vat_exempt_sales:
-          type: number
-          description: Official Receipt total vat exempt sales
-          example: 1000.00
-        or_total_zero_rated_sales:
-          type: number
-          description: Official Receipt total zero rated sales
-          example: 0.00
-        or_total_vat_amount:
-          type: number
-          description: Official Receipt total vat amount
-          example: 1000.00
-        or_total_discount:
-          type: number
-          description: Official Receipt total discount
-          example: 1000.00
-        or_total_item_refund:
-          type: number
-          description: Official Receipt total item discount
-          example: 1000.00
-        or_total_receipt_refund:
-          type: number
-          description: Official Receipt total receipt discount
-          example: 1000.00
-        or_total_refund:
-          type: number
-          description: Official Receipt total discount
-          example: 1000.00
-        or_credit_memo_beginning_series:
-          type: string
-          description: Official Receipt credit memo beginning series
-          example: 000000
-        or_credit_memo_ending_series:
-          type: string
-          description: Official Receipt credit memo ending series
-          example: 000001
-        or_credit_memo_series_reset:
-          type: number
-          description: Official Receipt credit memo series reset
-          example: 0
-        ar_beginning_series:
-          type: string
-          description: Acknowlegement Receipt beginning series
-          example: 000000
-        ar_ending_series:
-          type: string
-          description: Acknowlegement Receipt ending series
-          example: 000001
-        ar_beginning_sales:
-          type: number
-          description: Acknowlegement Receipt beginning sales
-          example: 1000.00
-        ar_ending_sales:
-          type: number
-          description: Acknowlegement Receipt ending sales
-          example: 2000.00
-        ar_series_reset:
-          type: number
-          description: Acknowlegement Receipt series reset
-          example: 0
-        ar_transaction_count:
-          type: number
-          description: Acknowlegement Receipt transaction count
-          example: 100
-        ar_gross_sales:
-          type: number
-          description: Acknowlegement Receipt gross sales
-          example: 10000.00
-        ar_net_sales:
-          type: number
-          description: Acknowlegement Receipt net sales
-          example: 9000.00
-        ar_total_vatable_sales:
-          type: number
-          description: Acknowlegement Receipt total vatable sales
-          example: 8000.00
-        ar_total_vat_exempt_sales:
-          type: number
-          description: Acknowlegement Receipt total vat exempt sales
-          example: 1000.00
-        ar_total_zero_rated_sales:
-          type: number
-          description: Acknowlegement Receipt total zero rated sales
-          example: 0.00
-        ar_total_vat_amount:
-          type: number
-          description: Acknowlegement Receipt total vat amount
-          example: 1000.00
-        ar_total_discount:
-          type: number
-          description: Acknowlegement Receipt total discount
-          example: 1000.00
-        ar_total_item_refund:
-          type: number
-          description: Acknowlegement Receipt total item discount
-          example: 1000.00
-        ar_total_receipt_refund:
-          type: number
-          description: Acknowlegement Receipt total receipt discount
-          example: 1000.00
-        ar_total_refund:
-          type: number
-          description: Acknowlegement Receipt total discount
-          example: 1000.00
-        ar_credit_memo_beginning_series:
-          type: string
-          description: Acknowlegement Receipt credit memo beginning series
-          example: 000000
-        ar_credit_memo_ending_series:
-          type: string
-          description: Acknowlegement Receipt credit memo ending series
-          example: 000001
-        ar_credit_memo_series_reset:
-          type: number
-          description: Acknowlegement Receipt credit memo series reset
-          example: 0
-        void_beginning_series:
-          type: string
-          description: Void beginning series
-          example: 000000
-        void_ending_series:
-          type: string
-          description: Void ending series
-          example: 000001
-        void_series_reset:
-          type: number
-          description: Void credit memo series reset
-          example: 0
-        cash_tender_total:
-          type: number
-          description: Total cash tendered
-          example: 1000.00
-        totals:
+          description: Total Number of cash add made during the shift
+          default: 0.00
+        tenders:
           type: array
-          description: agregated totals for the business date
+          description: Tenders data for the reading
           items:
             type: object
             properties:
               type:
                 type: string
-                description: Type of total
-                example: merchandise_sales
-              gross_amount:
+                description: Type of tender (e.g. CASH, CARD, GIFT_CHECK, EPAYMENT, COUPON)
+                example: CASH
+              total_amount:
                 type: number
-                description: Total gross amount for the type
-                example: 1000.00
-              net_amount:
+                description: Amount of tender
+                default: 0.00
+              total_excess:
                 type: number
-                description: Total net amount for the type
-                example: 1000.00
-              vatable_amount:
-                type: number
-                description: Total vatable amount for the type
-                example: 1000.00
-              vat_amount:
-                type: number
-                description: Total vat amount for the type
-                example: 1000.00
-              cost_payable:
-                type: number
-                description: Total cost payable for the type
-                example: 1000.00
-              service_charge:
-                type: number
-                description: Total service charge for the type
-                example: 1000.00
-              commission:
-                type: number
-                description: Total commission for the type
-                example: 1000.00
-              discounted_amount:
-                type: number
-                description: Total discounted amount for the type
-                example: 1000.00
-              refund_amount:
-                type: number
-                description: Total refund amount for the type
-                example: 1000.00
+                description: Change / Excess amount of tender
+                default: 0.00
               transaction_count:
                 type: number
-                description: Number of transactions for the type
-                example: 100
-              refund_count:
-                type: number
-                description: Number of refunds for the type
-                example: 100
-              discount_count:
-                type: number
-                description: Number of discounts for the type
-                example: 100
+                description: Number of transaction using the tender
+                default: 0
+              lists:
+                type: array
+                description: enumerated list of tenders used
+                items: 
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: Type of list
+                      example: epayments
+                    items:
+                      type: array
+                      description: Items in list
+                      items:
+                        type: object
+                        properties:
+                          data:
+                            type: string
+                            description: Details of an item
+                            example: MayaQR-12332123
+                          total_quantity:
+                            type: number
+                            description: Number of item used
+                            default: 1
+                          total_amount:
+                            type: number
+                            description: Total Amount of the item
+                            default: 0.00
+                          additional_data:
+                            type: object
+                            description: Additional data for the tender
+        totals:
+          type: array
+          description: agregated totals for the business date
+          items:
+            type: object
+            $ref: '#/components/schemas/AccumulatedTotalsDocument'
         lists:
           type: array
           description: enumerated list used within the duration of the reading (e.g. Products, EPayments, Online transactions, etc)
@@ -1906,47 +1781,236 @@ components:
                       description: Total Amount of the item
                       example: 1000.00
       required:
-      - or_beginning_series
-      - or_ending_series
-      - or_beginning_sales
-      - or_ending_sales
-      - or_series_reset
-      - or_transaction_count
-      - or_gross_sales
-      - or_net_sales
-      - or_total_vatable_sales
-      - or_total_vat_exempt_sales
-      - or_total_zero_rated_sales
-      - or_total_vat_amount
-      - or_total_discount
-      - or_total_item_refund
-      - or_total_receipt_refund
-      - or_total_refund
-      - or_credit_memo_beginning_series
-      - or_credit_memo_ending_series
-      - or_credit_memo_series_reset
-      - ar_beginning_series
-      - ar_ending_series
-      - ar_beginning_sales
-      - ar_ending_sales
-      - ar_series_reset
-      - ar_transaction_count
-      - ar_gross_sales
-      - ar_net_sales
-      - ar_total_vatable_sales
-      - ar_total_vat_exempt_sales
-      - ar_total_zero_rated_sales
-      - ar_total_vat_amount
-      - ar_total_discount
-      - ar_total_item_refund
-      - ar_total_receipt_refund
-      - ar_total_refund
-      - ar_credit_memo_beginning_series
-      - ar_credit_memo_ending_series
-      - ar_credit_memo_series_reset
-      - void_beginning_series
-      - void_ending_series
-      - void_series_reset
+      - or
+      - ar
+      - void
+      - credit_memo
+      - drawer_starting_float
+      - drawer_ending_float
+      - cash_add_amount
+      - cash_add_count
+      - cash_drop_amount
+      - cash_drop_count
+
+    TransactionReadingDocument:
+      description: Transaction reading values
+      type: object
+      properties:
+        beginning_series:
+          type: string
+          description: Beginning series
+          default: 000000
+        ending_series:
+          type: string
+          description: Ending series
+          default: 000001
+        beginning_sales:
+          type: number
+          description: Beginning sales
+          default: 0.00
+        ending_sales:
+          type: number
+          description: Ending sales
+          default: 0.00
+        series_reset:
+          type: number
+          description: Series reset
+          default: 0
+        sales_reset:
+          type: number
+          description: Series reset
+          default: 0
+        gross_sales:
+          type: number
+          description: Transaction gross sales
+          default: 0.00
+        net_sales:
+          type: number
+          description: Net sales
+          default: 0.00
+        total_vatable_sales:
+          type: number
+          description: Total VATable sales
+          default: 0.00
+        total_vat_amount:
+          type: number
+          description: Total VAT amount
+          default: 0.00
+        total_vat_exempt_sales:
+          type: number
+          description: Total VAT exempt sales
+          default: 0.00
+        total_zero_rated_sales:
+          type: number
+          description: Total zero rated sales
+          default: 0.00
+        transaction_count:
+          type: number
+          description: Transaction count
+          default: 0
+        transaction_item_quantity_count:
+          type: number
+          description: Transaction count
+          default: 0
+        total_discount_amount:
+          type: number
+          description: Total discount amount
+          default: 0.00
+        discounted_count:
+          type: number
+          description: Number of transaction with discount
+          default: 0
+        discounted_item_quantity_count:
+          type: number
+          description: Number of items with discount count
+          default: 0
+        total_item_refund_amount:
+          type: number
+          description: Total item discount amount
+          default: 0.00
+        total_receipt_refund_amount:
+          type: number
+          description: Total receipt discount amount
+          default: 0.00
+        refunded_count:
+          type: number
+          description: Number of refunded transaction
+          default: 0
+        refunded_item_quantity_count:
+          type: number
+          description: Number of refunded items
+          default: 0
+        total_item_void_amount:
+          type: number
+          description: Total item cancelled amount
+          default: 0.00
+        total_void_transaction_amount:
+          type: number
+          description: Total transaction cancelled amount
+          default: 0.00
+        void_count:
+          type: number
+          description: Number of cancelled transaction
+          default: 0
+        void_item_quantity_count:
+          type: number
+          description: Number of cancelled items
+          default: 0
+
+      required:
+        - beginning_series
+        - ending_series
+        - beginning_sales
+        - ending_sales
+        - series_reset
+        - sales_reset
+        - gross_sales
+        - net_sales
+        - total_vatable_sales
+        - total_vat_amount
+        - total_vat_exempt_sales
+        - total_zero_rated_sales
+        - transaction_count
+        - transaction_item_quantity_count
+        - total_discount_amount
+        - discounted_count
+        - discounted_item_quantity_count
+        - total_item_refund_amount
+        - total_receipt_refund_amount
+        - refunded_count
+        - refunded_item_quantity_count
+        - total_item_void_amount
+        - total_void_transaction_amount
+
+    AccumulatedTotalsDocument:
+      description: Accumulated Totals for a group of transaction
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of total
+          example: merchandise_sales
+        gross_sales:
+          type: number
+          description: Transaction gross sales
+          default: 0.00
+        net_sales:
+          type: number
+          description: Net sales
+          default: 0.00
+        cost_payable:
+          type: number
+          description: Total cost payable for the type
+          default: 0.00
+        service_charge:
+          type: number
+          description: Total service charge for the type
+          default: 0.00
+        commission:
+          type: number
+          description: Total commission for the type
+          default: 0.00
+        total_vatable_sales:
+          type: number
+          description: Total VATable sales
+          default: 0.00
+        total_vat_amount:
+          type: number
+          description: Total VAT amount
+          default: 0.00
+        total_vat_exempt_sales:
+          type: number
+          description: Total VAT exempt sales
+          default: 0.00
+        total_zero_rated_sales:
+          type: number
+          description: Total zero rated sales
+          default: 0.00
+        total_discount:
+          type: number
+          description: Total discount
+          default: 0.00
+        total_item_refund:
+          type: number
+          description: Total item discount
+          default: 0.00
+        total_receipt_refund:
+          type: number
+          description: Total receipt discount
+          default: 0.00
+        transaction_count:
+          type: number
+          description: Transaction count
+          default: 0
+        item_quantity_count:
+          type: number
+          description: Number of items for the type
+          default: 0
+        refunded_count:
+          type: number
+          description: Number of refunds for the type
+          default: 0
+        discounted_count:
+          type: number
+          description: Number of discounts for the type
+          default: 0
+      required:
+        - type
+        - gross_sales
+        - net_sales
+        - cost_payable
+        - service_charge
+        - commission
+        - total_vatable_sales
+        - total_vat_amount
+        - total_vat_exempt_sales
+        - total_zero_rated_sales
+        - total_discount
+        - total_item_refund
+        - total_receipt_refund
+        - transaction_count
+        - refund_count
+        - discount_count
 
     PosDocument:
       description: Details of the POS
@@ -2486,6 +2550,10 @@ components:
                     items:
                       type: string
                       example: [REGULAR_ITEM, SC_20, PWD_20]
+              additional_data:
+                type: object
+                description: Additional data for the item
+                example: {remarks: No remarks}
               remarks:
                 type: string
                 description: Remarks for the item
