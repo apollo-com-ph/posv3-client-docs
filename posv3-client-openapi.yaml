@@ -1785,12 +1785,6 @@ components:
       - ar
       - void
       - credit_memo
-      - drawer_starting_float
-      - drawer_ending_float
-      - cash_add_amount
-      - cash_add_count
-      - cash_drop_amount
-      - cash_drop_count
 
     TransactionReadingDocument:
       description: Transaction reading values
@@ -2771,4 +2765,3 @@ components:
           type: string
           description: Envelope number where the cash is placed
           example: 123456
-		
