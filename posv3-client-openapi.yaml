@@ -1898,11 +1898,11 @@ components:
           type: number
           description: Total receipt refunded amount for the type
           default: 0.00
-        refunded_count:
+        receipt_refund_count:
           type: number
           description: Number of receipt refunded for the type
           default: 0
-        refunded_item_quantity_count:
+        receipt_refund_item_quantity_count:
           type: number
           description: Number of items that was receipt refunded for the type
           default: 0
