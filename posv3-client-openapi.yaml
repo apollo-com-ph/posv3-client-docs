@@ -918,7 +918,6 @@ components:
           items:
             type: object
             description: Result item
-          default: []
         result_size:
           type: integer
           description: Number of results
@@ -1013,18 +1012,25 @@ components:
           example: images/product/product1.jpg
         prices:
           type: array
-          description: Prices of the product
+          description: Prices of the product. 
           items:
             type: object
             $ref: '#/components/schemas/ProductPriceDocument'
-          example: [{price: 10.00, currency: PHP, type: RETAIL, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z, vat_percentage: 12.00}]
+          example: [{amount: 10.00, currency: PHP, type: RETAIL, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z, vat_percentage: 12.00}]
         costs:
           type: array
-          description: Costs of the product
+          description: Costs of the product. 
           items:
             type: object
             $ref: '#/components/schemas/ProductPriceDocument'
-          example: [{price: 5.00, currency: PHP, type: COST, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z}]
+          example: [{amount: 5.00, currency: PHP, type: COST, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z}]
+        commissions:
+          type: array
+          description: Commissions of the product. Type can be FIXED_COMMISSION or PERCENTAGE_COMMISSION
+          items:
+            type: object
+            $ref: '#/components/schemas/ProductPriceDocument'
+          example: [{amount: 100.00, currency: PHP, type: PERCENTAGE_COMMISSION, from_date: 2021-01-01T00:00:00Z, to_date: 2021-12-31T23:59:59Z}]
         is_consigned:
           type: boolean
           description: Proudct is consigned
@@ -1040,6 +1046,10 @@ components:
         is_for_acknowledgement_receipt:
           type: boolean
           description: Sale of product requires acknowledgement receipt
+          default: false
+        is_non_vatable:
+          type: boolean
+          description: Product is non-vatable
           default: false
         discontinued_date:
           type: string
@@ -1138,7 +1148,7 @@ components:
       description: Product price document
       type: object
       properties:
-        price:
+        amount:
           type: number
           description: Price of the product
           example: 10.00
@@ -1622,7 +1632,90 @@ components:
         s_readings:
           type: object
           description: Shift Readings for the shift
-          $ref: '#/components/schemas/PosReadingDocument'
+          allOf:
+            - $ref: '#/components/schemas/PosReadingDocument'
+            - type: object
+              properties:
+                drawer_starting_float:
+                  type: number
+                  description: Amount of cash in drawer at the start of the shift
+                  default: 0.00
+                drawer_ending_float:
+                  type: number
+                  description: Amount of cash in drawer at the end of the shift
+                  default: 0.00
+                cash_add_amount:
+                  type: number
+                  description: Total Amount of cash add made during the shift
+                  default: 0.00
+                cash_add_count:
+                  type: number
+                  description: Total Number of cash add made during the shift
+                  default: 0.00
+                cash_drop_amount:
+                  type: number
+                  description: Total Amount of cash drop made during the shift
+                  default: 0.00
+                cash_drop_count:
+                  type: number
+                  description: Total Number of cash add made during the shift
+                  default: 0.00
+                tenders:
+                  type: array
+                  description: Tenders data for the reading
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: Type of tender (e.g. CASH, CARD, GIFT_CHECK, EPAYMENT, COUPON)
+                        example: CASH
+                      total_amount:
+                        type: number
+                        description: Amount of tender
+                        default: 0.00
+                      total_excess:
+                        type: number
+                        description: Change / Excess amount of tender
+                        default: 0.00
+                      transaction_count:
+                        type: number
+                        description: Number of transaction using the tender
+                        default: 0
+                      lists:
+                        type: array
+                        description: enumerated list of tenders used
+                        $ref: "#/components/schemas/ReadingItemSummaryDocument"
+                totals:
+                  type: array
+                  description: agregated totals for the business date
+                  items:
+                    type: object
+                    allOf:
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            description: Type of total
+                            example: merchandise_sales
+                      - $ref: "#/components/schemas/ReadingBreakdownDocument"
+                lists:
+                  type: array
+                  description: enumerated list used within the duration of the reading (e.g. Products, EPayments, Online transactions, etc)
+                  items: 
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: Type of list
+                        example: epayments
+                      items:
+                        type: array
+                        description: Items in list
+                        items:
+                          type: array
+                          description: enumerated list of tenders used
+                          $ref: "#/components/schemas/ReadingItemSummaryDocument"
         z_readings:
           type: object
           description: Z Readings as of this shift
@@ -1656,138 +1749,31 @@ components:
         or:
           type: object
           description: Official Receipt data
-          $ref: '#/components/schemas/TransactionReadingDocument'
+          allOf:
+            - $ref: "#/components/schemas/HeaderReadingDocument"
+            - $ref: "#/components/schemas/ReadingBreakdownDocument"
         ar:
           type: object
           description: Acknowledgement Receipt data
-          $ref: '#/components/schemas/TransactionReadingDocument'
+          allOf:
+            - $ref: "#/components/schemas/HeaderReadingDocument"
+            - $ref: "#/components/schemas/ReadingBreakdownDocument"
         void:
           type: object
           description: Void Transaction data
-          $ref: '#/components/schemas/TransactionReadingDocument'
+          $ref: "#/components/schemas/HeaderReadingDocument"
         credit_memo:
           type: object
           description: Credit Memo (Refunds) data
-          $ref: '#/components/schemas/TransactionReadingDocument'
-        drawer_starting_float:
-          type: number
-          description: Amount of cash in drawer at the start of the shift
-          default: 0.00
-        drawer_ending_float:
-          type: number
-          description: Amount of cash in drawer at the end of the shift
-          default: 0.00
-        cash_add_amount:
-          type: number
-          description: Total Amount of cash add made during the shift
-          default: 0.00
-        cash_add_count:
-          type: number
-          description: Total Number of cash add made during the shift
-          default: 0.00
-        cash_drop_amount:
-          type: number
-          description: Total Amount of cash drop made during the shift
-          default: 0.00
-        cash_drop_count:
-          type: number
-          description: Total Number of cash add made during the shift
-          default: 0.00
-        tenders:
-          type: array
-          description: Tenders data for the reading
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                description: Type of tender (e.g. CASH, CARD, GIFT_CHECK, EPAYMENT, COUPON)
-                example: CASH
-              total_amount:
-                type: number
-                description: Amount of tender
-                default: 0.00
-              total_excess:
-                type: number
-                description: Change / Excess amount of tender
-                default: 0.00
-              transaction_count:
-                type: number
-                description: Number of transaction using the tender
-                default: 0
-              lists:
-                type: array
-                description: enumerated list of tenders used
-                items: 
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      description: Type of list
-                      example: epayments
-                    items:
-                      type: array
-                      description: Items in list
-                      items:
-                        type: object
-                        properties:
-                          data:
-                            type: string
-                            description: Details of an item
-                            example: MayaQR-12332123
-                          total_quantity:
-                            type: number
-                            description: Number of item used
-                            default: 1
-                          total_amount:
-                            type: number
-                            description: Total Amount of the item
-                            default: 0.00
-                          additional_data:
-                            type: object
-                            description: Additional data for the tender
-        totals:
-          type: array
-          description: agregated totals for the business date
-          items:
-            type: object
-            $ref: '#/components/schemas/AccumulatedTotalsDocument'
-        lists:
-          type: array
-          description: enumerated list used within the duration of the reading (e.g. Products, EPayments, Online transactions, etc)
-          items: 
-            type: object
-            properties:
-              type:
-                type: string
-                description: Type of list
-                example: epayments
-              items:
-                type: array
-                description: Items in list
-                items:
-                  type: object
-                  properties:
-                    data:
-                      type: string
-                      description: Details of an item
-                      example: MayaQR-12332123
-                    quantity:
-                      type: number
-                      description: Number of item used
-                      example: 1
-                    amount:
-                      type: number
-                      description: Total Amount of the item
-                      example: 1000.00
+          $ref: "#/components/schemas/HeaderReadingDocument"
       required:
       - or
       - ar
       - void
       - credit_memo
 
-    TransactionReadingDocument:
-      description: Transaction reading values
+    HeaderReadingDocument:
+      description: Top level reading document
       type: object
       properties:
         beginning_series:
@@ -1818,116 +1804,52 @@ components:
           type: number
           description: Transaction gross sales
           default: 0.00
-        net_sales:
-          type: number
-          description: Net sales
-          default: 0.00
-        total_vatable_sales:
-          type: number
-          description: Total VATable sales
-          default: 0.00
-        total_vat_amount:
-          type: number
-          description: Total VAT amount
-          default: 0.00
-        total_vat_exempt_sales:
-          type: number
-          description: Total VAT exempt sales
-          default: 0.00
-        total_zero_rated_sales:
-          type: number
-          description: Total zero rated sales
-          default: 0.00
         transaction_count:
           type: number
-          description: Transaction count
+          description: Number of transaction
           default: 0
         transaction_item_quantity_count:
           type: number
-          description: Transaction count
+          description: Number of items
           default: 0
-        total_discount_amount:
-          type: number
-          description: Total discount amount
-          default: 0.00
-        discounted_count:
-          type: number
-          description: Number of transaction with discount
-          default: 0
-        discounted_item_quantity_count:
-          type: number
-          description: Number of items with discount count
-          default: 0
-        total_item_refund_amount:
-          type: number
-          description: Total item discount amount
-          default: 0.00
-        total_receipt_refund_amount:
-          type: number
-          description: Total receipt discount amount
-          default: 0.00
-        refunded_count:
-          type: number
-          description: Number of refunded transaction
-          default: 0
-        refunded_item_quantity_count:
-          type: number
-          description: Number of refunded items
-          default: 0
-        total_item_void_amount:
-          type: number
-          description: Total item cancelled amount
-          default: 0.00
-        total_void_transaction_amount:
-          type: number
-          description: Total transaction cancelled amount
-          default: 0.00
-        void_count:
-          type: number
-          description: Number of cancelled transaction
-          default: 0
-        void_item_quantity_count:
-          type: number
-          description: Number of cancelled items
-          default: 0
+        products:
+          $ref: '#/components/schemas/ReadingItemSummaryDocument'
 
-      required:
-        - beginning_series
-        - ending_series
-        - beginning_sales
-        - ending_sales
-        - series_reset
-        - sales_reset
-        - gross_sales
-        - net_sales
-        - total_vatable_sales
-        - total_vat_amount
-        - total_vat_exempt_sales
-        - total_zero_rated_sales
-        - transaction_count
-        - transaction_item_quantity_count
-        - total_discount_amount
-        - discounted_count
-        - discounted_item_quantity_count
-        - total_item_refund_amount
-        - total_receipt_refund_amount
-        - refunded_count
-        - refunded_item_quantity_count
-        - total_item_void_amount
-        - total_void_transaction_amount
+    ReadingItemSummaryDocument:
+      description: List of items with total quantity and amount (Ex list of products, tenders, etc)
+      type: array
+      items:
+        type: object
+        properties:
+          data:
+            type: string
+            description: Details of an item
+            example: MayaQR-12332123
+          quantity:
+            type: number
+            description: Number of item used
+            example: 1
+          amount:
+            type: number
+            description: Total Amount of the item
+            example: 1000.00
 
-    AccumulatedTotalsDocument:
+    ReadingBreakdownDocument:
       description: Accumulated Totals for a group of transaction
       type: object
       properties:
-        type:
-          type: string
-          description: Type of total
-          example: merchandise_sales
         gross_sales:
           type: number
           description: Transaction gross sales
           default: 0.00
+        transaction_count:
+          type: number
+          description: Transaction count for the type
+          default: 0
+        transaction_item_quantity_count:
+          type: number
+          description: Number of items for the type
+          default: 0
         net_sales:
           type: number
           description: Net sales
@@ -1944,67 +1866,110 @@ components:
           type: number
           description: Total commission for the type
           default: 0.00
-        total_vatable_sales:
+        vatable_sales:
           type: number
           description: Total VATable sales
           default: 0.00
-        total_vat_amount:
+        vat_amount:
           type: number
           description: Total VAT amount
           default: 0.00
-        total_vat_exempt_sales:
+        vat_exempt_sales:
           type: number
           description: Total VAT exempt sales
           default: 0.00
-        total_zero_rated_sales:
+        zero_rated_sales:
           type: number
           description: Total zero rated sales
           default: 0.00
-        total_discount:
+        discount:
           type: number
-          description: Total discount
+          description: Total discounted amount for the type
           default: 0.00
-        total_item_refund:
-          type: number
-          description: Total item discount
-          default: 0.00
-        total_receipt_refund:
-          type: number
-          description: Total receipt discount
-          default: 0.00
-        transaction_count:
-          type: number
-          description: Transaction count
-          default: 0
-        item_quantity_count:
-          type: number
-          description: Number of items for the type
-          default: 0
-        refunded_count:
-          type: number
-          description: Number of refunds for the type
-          default: 0
         discounted_count:
           type: number
           description: Number of discounts for the type
           default: 0
+        discounted_item_quantity_count:
+          type: number
+          description: Number of items discounted for the type
+          default: 0
+        receipt_refund:
+          type: number
+          description: Total receipt refunded amount for the type
+          default: 0.00
+        refunded_count:
+          type: number
+          description: Number of receipt refunded for the type
+          default: 0
+        refunded_item_quantity_count:
+          type: number
+          description: Number of items that was receipt refunded for the type
+          default: 0
+        item_receipt_refund:
+          type: number
+          description: Total item refunded amount for the type
+          default: 0.00
+        item_refunded_count:
+          type: number
+          description: Number of item refunded for the type
+          default: 0
+        item_refunded_item_quantity_count:
+          type: number
+          description: Number of items that was item refunded for the type
+          default: 0
+        transaction_void:
+          type: number
+          description: Total transaction void amount for the type
+          default: 0.00
+        transaction_void_count:
+          type: number
+          description: Number of transaction void for the type
+          default: 0
+        transaction_void_item_quantity_count:
+          type: number
+          description: Number of items that was transaction void for the type
+          default: 0
+        item_void:
+          type: number
+          description: Total item void amount for the type
+          default: 0.00
+        item_void_count:
+          type: number
+          description: Number of item void for the type
+          default: 0
+        item_void_item_quantity_count:
+          type: number
+          description: Number of items that was item void for the type
+          default: 0
       required:
         - type
         - gross_sales
+        - transaction_count
+        - item_quantity_count
         - net_sales
         - cost_payable
         - service_charge
         - commission
-        - total_vatable_sales
-        - total_vat_amount
-        - total_vat_exempt_sales
-        - total_zero_rated_sales
-        - total_discount
-        - total_item_refund
-        - total_receipt_refund
-        - transaction_count
-        - refund_count
-        - discount_count
+        - vatable_sales
+        - vat_amount
+        - vat_exempt_sales
+        - zero_rated_sales
+        - discount
+        - discounted_count
+        - discounted_item_quantity_count
+        - receipt_refund
+        - refunded_count
+        - refunded_item_quantity_count
+        - item_receipt_refund
+        - item_refunded_count
+        - item_refunded_item_quantity_count
+        - transaction_void
+        - transaction_void_count
+        - transaction_void_item_quantity_count
+        - item_void
+        - item_void_count
+        - item_void_item_quantity_count
 
     PosDocument:
       description: Details of the POS
@@ -2476,7 +2441,7 @@ components:
               line_number:
                 type: number
                 description: Line number of the item in the transaction
-                example: 1
+                default: 1
               type:
                 type: string
                 description: Type of the item. Possible values [VATABLE, NON_VATABLE, VOID, REFUND]
@@ -2484,39 +2449,55 @@ components:
               quantity:
                 type: number
                 description: Quantity of the item
-                example: 1
+                default: 1
               unit_price:
                 type: number
                 description: Unit price of the item
-                example: 1000.00
+                default: 1000.00
               gross_amount:
                 type: number
                 description: Gross amount of the item
-                example: 1000.00
+                default: 1000.00
               net_amount:
                 type: number
                 description: Net amount of the item
-                example: 900.00
+                default: 900.00
               discount_amount:
                 type: number
                 description: Discount amount of the item
-                example: 100.00
+                default: 100.00
               vat_amount:
                 type: number
                 description: VAT amount of the item
-                example: 100.00
+                default: 100.00
               vatable_amount:
                 type: number
                 description: Vatable amount of the item
-                example: 1000.00
+                default: 1000.00
               non_vatable_amount:
                 type: number
-                description: Non-vatable amount of the item
-                example: 0.00
+                description: Non-vatable amount of the item. Product is marked as non-vatable or is exempted because of government discount
+                default: 0.00
+              zero_rated_amount:
+                type: number
+                description: Zero rated amount of the item. Price of the item has 0 vat_percentage or is exempted because customer is DIPLOMAT
+                default: 0.00
+              commission_amount:
+                type: number
+                description: Commission amount of the item. Either retrieved from the online service or defined commission rate for the product
+                default: 0.00
+              cost_payable:
+                type: number
+                description: Cost payable amount of the item. Either retrieved from the online service or commputed from gross amount minus commission amount 
+                default: 0.00
+              service_charge:
+                type: number
+                description: Service charge amount of the item
+                default: 0.00
               tax_rate:
                 type: number
-                description: Tax rate for the item of the transaction
-                example: 0.12
+                description: Tax rate for the item
+                default: 0.12
               product:
                 type: object
                 description: Product associated with the item
@@ -2637,15 +2618,15 @@ components:
               type:
                 type: string
                 description: Type of the payment. Possible values [CASH, CARD, GIFT_CHECK, EPAYMENT]
-                example: CASH
+                default: CASH
               amount:
                 type: number
                 description: Amount of the payment
-                example: 1000.00
+                default: 0.00
               amount_change:
                 type: number
                 description: Change amount of the payment
-                example: 0.00
+                default: 0.00
               currency:
                 type: string
                 description: Currency of the payment
@@ -2661,43 +2642,55 @@ components:
         total_gross_amount:
           type: number
           description: Gross amount of the transaction
-          example: 1000.00
+          default: 0.00
         total_net_amount:
           type: number
           description: Net amount of the transaction
-          example: 900.00
+          default: 0.00
         total_discount_amount:
           type: number
           description: Discount amount of the transaction
-          example: 100.00
+          default: 0.00
         total_vat_amount:
           type: number
           description: VAT amount of the transaction
-          example: 100.00
+          default: 0.00
         total_vatable_amount:
           type: number
           description: Vatable amount of the transaction
-          example: 1000.00
+          default: 0.00
         total_non_vatable_amount:
           type: number
           description: Non-vatable amount of the transaction
-          example: 0.00
+          default: 0.00
         total_zero_rated_amount:
           type: number
           description: Total Zero rated amount of the transaction
-          example: 0.00
+          default: 0.00
+        total_commission_amount:
+          type: number
+          description: Total commission amount of the transaction
+          default: 0.00
+        total_cost_payable:
+          type: number
+          description: Total cost payable amount of the transaction
+          default: 0.00
+        total_service_charge:
+          type: number
+          description: Total service charge amount of the transaction
+          default: 0.00
         total_amount_paid:
           type: number
           description: Total Amount paid for the transaction
-          example: 1000.00
+          default: 0.00
         total_amount_change:
           type: number
           description: Total Change amount of the transaction
-          example: 0.00
+          default: 0.00
         total_quantity:
           type: number
           description: Total number of items of the transaction
-          example: 10
+          default: 1
         reason_id:
           type: string
           description: Identifier of the reason for refund transaction
