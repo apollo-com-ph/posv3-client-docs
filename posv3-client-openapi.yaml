@@ -1333,7 +1333,7 @@ components:
           example: 0
         is_vat_exempted:
           type: boolean
-          description: Generate end of shift / day report for the discount
+          description: Discount is VAT exempted. Creates default action to remove VAT amount from affected products in basket
           example: false
         from_date:
           type: string
@@ -1688,7 +1688,7 @@ components:
                         $ref: "#/components/schemas/ReadingItemSummaryDocument"
                 totals:
                   type: array
-                  description: agregated totals for the business date
+                  description: aggregated totals for the shift
                   items:
                     type: object
                     allOf:
@@ -1770,6 +1770,33 @@ components:
           type: object
           description: Credit Memo (Refunds) data
           $ref: "#/components/schemas/HeaderReadingDocument"
+        totals:
+          type: array
+          description: aggregated totals for the period
+          items:
+            type: object
+            allOf:
+              - type: object
+                properties:
+                  type:
+                    type: string
+                    description: Type of total
+                    example: merchandise_sales
+              - $ref: "#/components/schemas/ReadingBreakdownDocument"
+        counters:
+          type: array
+          description: Current values for counters for the reading
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Type of counter. Possible values are OR_SERIES, AR_SERIES, VOID_SERIES, CREDIT_MEMO_SERIES, COUPON_SERIES, REPRINT_RECEIPT_COUNT, DRAWER_KICK_COUNT, DRAWER_KEY_OPEN_COUNT, TRAINING_MODE_COUNT, PRINT_SREADINGS_COUNT, PRINT_ZREADINGS_COUNT, PRINT_XREADINGS_COUNT, POS_STARTUP_COUNT, POS_SHUTDOWN_COUNT
+                example: OR_SERIES
+              value:
+                type: number
+                description: Value of the counter
+                example: 10
       required:
       - or
       - ar
@@ -2218,7 +2245,7 @@ components:
 
     PosMessageDocument:
       type: object
-      description: Messages displayed on the POS
+      description: Messages displayed on the POS. Various text or images that can be displayed on the POS screens or printed on the receipt. Examples Customer screen ads (center, text scroll), Customer screen messages (welcome, unavailable, training), Cashier screen message (welcome, training), Receipt footer ads
       properties:
         id:
           type: string
@@ -2230,7 +2257,7 @@ components:
           example: Login receipt template
         type:
           type: string
-          description: Type of message to display. Possible values [NEXT_CUSTOMER, OUT_OF_SERVICE, RECEIPT_FOOTER, CUSTOMER_DISPLAY_CENTER_AD, CUSTOMER_DISPLAY_TEXT_AD]
+          description: Type of message to display. Possible values [NEXT_CUSTOMER, OUT_OF_SERVICE, TRAINING_MODE, RECEIPT_FOOTER, CUSTOMER_DISPLAY_CENTER_AD, CUSTOMER_DISPLAY_TEXT_AD]
           example: 
         value:
           type: string
