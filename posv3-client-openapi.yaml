@@ -1552,11 +1552,135 @@ components:
         x_readings:
           type: object
           description: X Readings for the business date
-          $ref: '#/components/schemas/PosReadingDocument'
+          allOf:
+            - $ref: '#/components/schemas/PosReadingDocument'
+            - type: object
+              properties:
+                drawer_starting_float:
+                  type: number
+                  description: Amount of cash in drawer at the start of the shift
+                  default: 0.00
+                drawer_ending_float:
+                  type: number
+                  description: Amount of cash in drawer at the end of the shift
+                  default: 0.00
+                cash_add_amount:
+                  type: number
+                  description: Total Amount of cash add made during the shift
+                  default: 0.00
+                cash_add_count:
+                  type: number
+                  description: Total Number of cash add made during the shift
+                  default: 0.00
+                cash_drop_amount:
+                  type: number
+                  description: Total Amount of cash drop made during the shift
+                  default: 0.00
+                cash_drop_count:
+                  type: number
+                  description: Total Number of cash add made during the shift
+                  default: 0.00
+                tenders:
+                  type: array
+                  description: Tenders data for the reading
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: Type of tender (e.g. CASH, CARD, GIFT_CHECK, EPAYMENT, COUPON)
+                        example: CASH
+                      total_amount:
+                        type: number
+                        description: Amount of tender
+                        default: 0.00
+                      total_excess:
+                        type: number
+                        description: Change / Excess amount of tender
+                        default: 0.00
+                      transaction_count:
+                        type: number
+                        description: Number of transaction using the tender
+                        default: 0
+                totals:
+                  type: array
+                  description: aggregated totals for the shift
+                  items:
+                    type: object
+                    allOf:
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            description: Type of total
+                            example: merchandise_sales
+                      - $ref: "#/components/schemas/ReadingBreakdownDocument"
         z_readings:
           type: object
           description: Z Readings as of this business date
-          $ref: '#/components/schemas/PosReadingDocument'
+          allOf:
+            - $ref: '#/components/schemas/PosReadingDocument'
+            - type: object
+              properties:
+                drawer_starting_float:
+                  type: number
+                  description: Amount of cash in drawer at the start of the shift
+                  default: 0.00
+                drawer_ending_float:
+                  type: number
+                  description: Amount of cash in drawer at the end of the shift
+                  default: 0.00
+                cash_add_amount:
+                  type: number
+                  description: Total Amount of cash add made during the shift
+                  default: 0.00
+                cash_add_count:
+                  type: number
+                  description: Total Number of cash add made during the shift
+                  default: 0.00
+                cash_drop_amount:
+                  type: number
+                  description: Total Amount of cash drop made during the shift
+                  default: 0.00
+                cash_drop_count:
+                  type: number
+                  description: Total Number of cash add made during the shift
+                  default: 0.00
+                tenders:
+                  type: array
+                  description: Tenders data for the reading
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: Type of tender (e.g. CASH, CARD, GIFT_CHECK, EPAYMENT, COUPON)
+                        example: CASH
+                      total_amount:
+                        type: number
+                        description: Amount of tender
+                        default: 0.00
+                      total_excess:
+                        type: number
+                        description: Change / Excess amount of tender
+                        default: 0.00
+                      transaction_count:
+                        type: number
+                        description: Number of transaction using the tender
+                        default: 0
+                totals:
+                  type: array
+                  description: aggregated totals for the shift
+                  items:
+                    type: object
+                    allOf:
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            description: Type of total
+                            example: merchandise_sales
+                      - $ref: "#/components/schemas/ReadingBreakdownDocument"
         date_created:
           type: string
           description: Date created of the business date document
@@ -1785,11 +1909,87 @@ components:
         void:
           type: object
           description: Void Transaction data
-          $ref: "#/components/schemas/HeaderReadingDocument"
+          properties:
+            beginning_series:
+              type: string
+              description: Beginning series
+              default: 000000
+            ending_series:
+              type: string
+              description: Ending series
+              default: 000001
+            beginning_void_sales:
+              type: number
+              description: Beginning void sales
+              default: 0.00
+            ending_void_sales:
+              type: number
+              description: Ending void sales
+              default: 0.00
+            series_reset:
+              type: number
+              description: Series reset
+              default: 0
+            void_sales_reset:
+              type: number
+              description: void sales reset
+              default: 0
+            gross_void_sales:
+              type: number
+              description: Transaction gross void sales
+              default: 0.00
+            transaction_count:
+              type: number
+              description: Number of void transaction
+              default: 0
+            transaction_item_quantity_count:
+              type: number
+              description: Number of void items
+              default: 0
+            products:
+              $ref: '#/components/schemas/ReadingItemSummaryDocument'
         credit_memo:
           type: object
-          description: Credit Memo (Refunds) data
-          $ref: "#/components/schemas/HeaderReadingDocument"
+          description: Credit Memo (Returns / Refunds) data
+          properties:
+            beginning_series:
+              type: string
+              description: Beginning series
+              default: 000000
+            ending_series:
+              type: string
+              description: Ending series
+              default: 000001
+            beginning_credit_memo_sales:
+              type: number
+              description: Beginning credit memo sales
+              default: 0.00
+            ending_credit_memo_sales:
+              type: number
+              description: Ending credit memo sales
+              default: 0.00
+            series_reset:
+              type: number
+              description: Series reset
+              default: 0
+            credit_memo_sales_reset:
+              type: number
+              description: credit memo sales reset
+              default: 0
+            gross_credit_memo_sales:
+              type: number
+              description: Transaction gross credit memo sales
+              default: 0.00
+            transaction_count:
+              type: number
+              description: Number of credit memo transaction
+              default: 0
+            transaction_item_quantity_count:
+              type: number
+              description: Number of credit memo items
+              default: 0
+            products:
+              $ref: '#/components/schemas/ReadingItemSummaryDocument'
         totals:
           type: array
           description: aggregated totals for the period
@@ -1803,6 +2003,10 @@ components:
                     description: Type of total
                     example: merchandise_sales
               - $ref: "#/components/schemas/ReadingBreakdownDocument"
+              - type: object
+                properties:
+                  products:
+                    $ref: '#/components/schemas/ReadingItemSummaryDocument'
         counters:
           type: array
           description: Current values for counters for the reading
@@ -1849,7 +2053,7 @@ components:
           default: 0
         sales_reset:
           type: number
-          description: Series reset
+          description: Sales reset
           default: 0
         gross_sales:
           type: number
