@@ -1720,6 +1720,26 @@ components:
                           type: array
                           description: enumerated list of tenders used
                           $ref: "#/components/schemas/ReadingItemSummaryDocument"
+                timecard:
+                  type: array
+                  description: Timecard data for the shift
+                  items:
+                    type: object
+                    description: Timecard data for the shift
+                    properties:
+                      type:
+                        type: string
+                        description: Type of timecard (e.g. TIME_IN, TIME_OUT)
+                        example: TIME_IN
+                      username:
+                        type: string
+                        description: Username of the cashier
+                        example: 711001
+                      timestamp:
+                        type: string
+                        description: Time the time in / out happened
+                        format: date-time
+                        example: 2021-01-01T00:00:00Z
         z_readings:
           type: object
           description: Z Readings as of this shift
@@ -1791,7 +1811,7 @@ components:
             properties:
               type:
                 type: string
-                description: Type of counter. Possible values are OR_SERIES, AR_SERIES, VOID_SERIES, CREDIT_MEMO_SERIES, COUPON_SERIES, REPRINT_RECEIPT_COUNT, DRAWER_KICK_COUNT, DRAWER_KEY_OPEN_COUNT, TRAINING_MODE_COUNT, PRINT_SREADINGS_COUNT, PRINT_ZREADINGS_COUNT, PRINT_XREADINGS_COUNT, POS_STARTUP_COUNT, POS_SHUTDOWN_COUNT
+                description: Type of counter. Possible values are OR_SERIES, AR_SERIES, VOID_SERIES, CREDIT_MEMO_SERIES, COUPON_SERIES, REPRINT_RECEIPT_COUNT, DRAWER_KICK_COUNT, DRAWER_KEY_OPEN_COUNT, TRAINING_MODE_COUNT, PRINT_SREADINGS_COUNT, PRINT_ZREADINGS_COUNT, PRINT_XREADINGS_COUNT, POS_STARTUP_COUNT, POS_SHUTDOWN_COUNT, LOGIN_COUNT, LOGOUT_COUNT, TIMEIN_COUNT, TIMEOUT_COUNT, CASH_ADD_COUNT, CASH_DROP_COUNT
                 example: OR_SERIES
               value:
                 type: number
