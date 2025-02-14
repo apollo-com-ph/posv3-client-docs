@@ -2015,7 +2015,7 @@ components:
             properties:
               type:
                 type: string
-                description: Type of counter. Possible values are OR_SERIES, AR_SERIES, VOID_SERIES, CREDIT_MEMO_SERIES, COUPON_SERIES, REPRINT_RECEIPT_COUNT, DRAWER_KICK_COUNT, DRAWER_KEY_OPEN_COUNT, TRAINING_MODE_COUNT, PRINT_SREADINGS_COUNT, PRINT_ZREADINGS_COUNT, PRINT_XREADINGS_COUNT, POS_STARTUP_COUNT, POS_SHUTDOWN_COUNT, LOGIN_COUNT, LOGOUT_COUNT, TIMEIN_COUNT, TIMEOUT_COUNT, CASH_ADD_COUNT, CASH_DROP_COUNT
+                description: Type of counter. Possible values are OR_SERIES, AR_SERIES, VOID_SERIES, CREDIT_MEMO_SERIES, COUPON_SERIES, REPRINT_RECEIPT_COUNT, DRAWER_KICK_COUNT, DRAWER_KEY_OPEN_COUNT, TRAINING_MODE_COUNT, PRINT_SREADINGS_COUNT, PRINT_ZREADINGS_COUNT, PRINT_XREADINGS_COUNT, POS_STARTUP_COUNT, POS_SHUTDOWN_COUNT, LOGIN_COUNT, LOGOUT_COUNT, TIMEIN_COUNT, TIMEOUT_COUNT
                 example: OR_SERIES
               value:
                 type: number
@@ -2129,9 +2129,9 @@ components:
           type: number
           description: Total VAT amount
           default: 0.00
-        vat_exempt_sales:
+        non_vatable_sales:
           type: number
-          description: Total VAT exempt sales
+          description: Total non vatable sales
           default: 0.00
         zero_rated_sales:
           type: number
@@ -2208,7 +2208,7 @@ components:
         - commission
         - vatable_sales
         - vat_amount
-        - vat_exempt_sales
+        - non_vatable_sales
         - zero_rated_sales
         - discount
         - discount_count
