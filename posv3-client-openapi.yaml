@@ -2595,6 +2595,10 @@ components:
           type: string
           description: Identifier of the transaction
           example: 3458-100019485-1-L2NCM6N7
+        reference_id:
+          type: string
+          description: Reference identifier of the transaction
+          example: 3458-100019485-1-L2NCM6N7
         terminal_id:
           type: string
           description: Identifier of the pos machine
@@ -2701,6 +2705,10 @@ components:
                 type: string
                 description: Type of the item. Possible values [VATABLE, NON_VATABLE, ZERO_RATED, VOID, REFUND]
                 example: VATABLE
+              reference_id:
+                type: string
+                description: Reference identifier of the line item
+                example: 3458-100019485-1-L2NCM6N7
               quantity:
                 type: number
                 description: Quantity of the item
