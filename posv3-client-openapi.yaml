@@ -1051,6 +1051,10 @@ components:
           type: boolean
           description: Product is non-vatable
           default: false
+        is_coupon:
+          type: boolean
+          description: Product is a coupon
+          default: false
         discontinued_date:
           type: string
           description: Date when the product was discontinued
@@ -1094,6 +1098,10 @@ components:
           items:
             type: string
             example: product123
+        coupon_print_template:
+          type: string
+          description: Template for coupon printing
+          example: This coupon grants you less Php 10.00 discount on your next purchase.\n<barcode:ITF>\n20012332123543 
       required:
         - id
         - long_name
@@ -2385,6 +2393,54 @@ components:
           description: Messages displayed on the POS
           items:
             $ref: '#/components/schemas/PosMessageDocument'
+        refund_reasons:
+          type: array
+          description: List of reasons that can be set for refund transactions
+          items:
+            type: string
+            example: Cashier Encoding Error
+        customer_types:
+          type: array
+          description: List of types of customer that can be set for sales transactions
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Identifier of the customer type
+                example: SENIOR_CITIZEN
+              name:
+                type: string
+                description: Text to display on POS when selecting customer type
+                example: Senior Citizen
+        receipt_templates:
+          type: array
+          description: List of receipt templates that POS can use when printing receipts
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Identifier of the receipt template
+                example: OR_TRANSACTION
+              template:
+                type: string
+                description: Receipt template to use
+                example: EVENT ${event.type}\n${pos.owner}\n${event.description}\n${event.date_created}
+        barcode_patterns:
+          type: array
+          description: List of barcode patterns that POS should recognize when scanning barcodes
+          items:
+            type: object
+            properties:
+              pattern:
+                type: string
+                description: barcode regex pattern 
+                example: \^(\d{13})\$
+              module_name:
+                type: string
+                description: name of module to call where the barcode will be processed
+                example: add_product
         date_created:
           type: string
           description: Date created of the POS document
