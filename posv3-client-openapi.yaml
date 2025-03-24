@@ -1055,6 +1055,10 @@ components:
           type: boolean
           description: Product is a coupon
           default: false
+        is_manual_created:
+          type: boolean
+          description: Product manually was created in POS
+          default: false
         discontinued_date:
           type: string
           description: Date when the product was discontinued
