@@ -1339,9 +1339,9 @@ components:
           type: integer
           description: Limit of usage per transaction (0 for unlimited)
           example: 0
-        use_limit_per_promotion:
+        use_limit_per_pos:
           type: integer
-          description: Limit of number of type of discounts that can be applied per transaction (0 for unlimited)
+          description: Limit of number of times the discount can be used for the POS (0 for unlimited)
           example: 0
         is_vat_exempted:
           type: boolean
