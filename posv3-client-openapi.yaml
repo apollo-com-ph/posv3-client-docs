@@ -2932,6 +2932,10 @@ components:
                 type: number
                 description: Number of rewards given
                 example: 1
+              coupon_print_template:
+                type: string
+                description: Template of the coupon printout
+                example: "************ Coupon ************\n${promo_name}\n${promo_id}\n${non_cash_code}\n|---|"
               remarks:
                 type: string
                 description: Remarks for the reward
