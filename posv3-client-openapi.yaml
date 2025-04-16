@@ -1518,6 +1518,55 @@ components:
         - date_created
         - last_updated
 
+    NonCashDocument:
+      description: NonCash tender lookup details. Examples are gift checks, vouchers and coupons
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the non-cash tender
+          example: 123456
+        type:
+          type: string
+          description: Type of the non-cash tender [GIFT_CHECK, VOUCHER, COUPON]
+          example: GIFT_CHECK
+        non_cash_code:
+          type: string
+          description: Vendor specific identifier of the non-cash tender
+          example: 20190911-0010
+        description:
+          type: string
+          description: Description of the non-cash tender
+          example: Gift Card - Free Gulp 22oz Save P31.00
+        short_name:
+          type: string
+          description: Name of the non-cash tender printable on the receipt
+          example: P31Gulp22OZGC
+        from_date:
+          type: string
+          description: Start date of the validity of the non-cash tender. No value means non-cash tender is valid indefinitely
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        to_date:
+          type: string
+          description: End date of the validity of the non-cash tender
+          format: date-time
+          example: 2021-12-31T23:59:59Z
+        amount:
+          type: number
+          description: Amount of the non-cash tender
+          example: 100.00
+        date_created:
+          type: string
+          description: Date created of the non-cash tender document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the non-cash tender document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+
     BusinessDateDocument:
       description: Details for business date data
       type: object
