@@ -553,7 +553,254 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
 
+  /terminal/payment/sendPayment/{terminal_id}:
+    post:
+      tags:
+        - TerminalController
+      summary: Send payment request to the payment terminal
+      parameters:
+        - name: terminal_id
+          in: path
+          description: Identifier of the payment terminal
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  description: Amount to be paid
+                  example: 100.00
+                currency:
+                  type: string
+                  description: Currency of the payment
+                  example: PHP
+                type:
+                  type: string
+                  description: Type of payment
+                  example: CARD, QRPH
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Payment request sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminalPaymentResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
   
+  /terminal/healthCheck/{terminal_id}:
+    get:
+      tags:
+        - TerminalController
+      summary: Perform health check on the terminal
+      parameters:
+        - name: terminal_id
+          in: path
+          description: Identifier of the terminal
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Health check successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminalHealthCheckResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+  /terminal/healthCheck:
+    get:
+      tags:
+        - TerminalController
+      summary: Perform health check on all terminals
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Health check successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenericHealthCheckResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+
+  /isomessage/send/{gateway_id}:
+    post:
+      tags:
+        - ISOMessageController
+      summary: Send ISO message to the payment terminal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ISOMessageRequest'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ISO message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ISOMessageResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+  /isomessage/healthcheck/{gateway_id}:
+    get:
+      tags:
+        - ISOMessageController
+      summary: Perform health check on the ISO message gateway
+      parameters:
+        - name: gateway_id
+          in: path
+          description: Identifier of the ISO message gateway
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Health check successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericHealthCheckResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+  /isomessage/healthcheck:
+    get:
+      tags:
+        - ISOMessageController
+      summary: Perform health check on all ISO message gateways
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Health check successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenericSuccessResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
 
 components:
   securitySchemes:
@@ -960,6 +1207,143 @@ components:
         - message
         - code
 
+    GenericHealthCheckResponse:
+      description: Generic health check response
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the service or component
+          example: "service123"
+        name:
+          type: string
+          description: Name of the service or component
+          example: "Payment Terminal"
+        status:
+          type: string
+          description: Status of the health check
+          enum:
+            - CONNECTED
+            - DISCONNECTED
+            - ERROR
+          example: CONNECTED
+        timestamp:
+          type: string
+          description: Timestamp of the health check
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+        message:
+          type: string
+          description: Additional message for the health check
+          example: "Service is running smoothly"
+        data:
+          type: object
+          description: Additional data related to the health check
+          example: {version: "1.0.0", uptime: "24 hours"}
+
+    TerminalPaymentResponse:
+      description: Successful response from Terminal payment request
+      type: object
+      properties:
+        trace_number:
+          type: string
+          description: Transaction trace number
+          example: "000001"
+        batch_number:
+          type: string
+          description: Batch number of the transaction
+          example: "000001"
+        transaction_date:
+          type: string
+          description: Date of the transaction in ISO 8601 format
+          example: "2023-10-01T12:00:00Z"
+        approval_code:
+          type: string
+          description: Approval code of the transaction
+          example: "123456"
+        approval_date:
+          type: string
+          description: Approval date of the transaction in ISO 8601 format
+          example: "2023-10-01T12:00:00Z"
+        retrieval_reference_number:
+          type: string
+          description: Retrieval reference number of the transaction
+          example: "123456789012"
+        merchant_id:
+          type: string
+          description: Identifier of the merchant
+          example: "1234567890"
+        terminal_id:
+          type: string
+          description: Identifier of the terminal
+          example: "terminal123"
+        status:
+          type: string
+          description: Status of the transaction
+          enum:
+            - SUCCESS
+            - FAILED
+            - PENDING
+          example: "SUCCESS"
+        print_receipt:
+          type: boolean
+          description: Whether to print the receipt or not
+          default: false
+        response_data:
+          type: object
+          description: Additional response data from the terminal
+          example: {aid: "aid", appLabel: "appLabel", cardNo: "1234567890123456", tc: "transaction_code", tsi: "tsi_value", tvr: "tvr_value"}
+        response_code:
+          type: string
+          description: Response code of the transaction
+          example: "00"
+        response_description:
+          type: string
+          description: Description of the response code
+          example: "Transaction Approved"
+
+    ISOMessageRequest:
+      description: Request for ISO message
+      type: object
+      properties:
+        message_type:
+          type: string
+          description: Type of the ISO message
+          example: "0200"
+        fields:
+          type: object
+          description: Fields in the ISO message
+          additionalProperties:
+            type: string
+          example: {"2": "1234567890123456", "3": "000000", "4": "100.00"}
+        request_code:
+          type: string
+          description: Request code of the ISO message
+          example: "00"
+
+    ISOMessageResponse:
+      description: Response for ISO message
+      type: object
+      properties:
+        message_type:
+          type: string
+          description: Type of the ISO message
+          example: "0200"
+        fields:
+          type: object
+          description: Fields in the ISO message
+          additionalProperties:
+            type: string
+          example: {"2": "1234567890123456", "3": "000000", "4": "100.00"}
+        response_code:
+          type: string
+          description: Response code of the ISO message
+          example: "00"
+        response_description:
+          type: string
+          description: Description of the response code
+          example: "Transaction Approved"
+          
     ProductDocument:
       description: Product document
       type: object
