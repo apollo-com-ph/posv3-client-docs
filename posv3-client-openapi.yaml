@@ -553,15 +553,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
 
-  /terminal/payment/sendPayment/{terminal_id}:
+  /terminal/send/{terminal_id}:
     post:
       tags:
         - TerminalController
-      summary: Send payment request to the payment terminal
+      summary: Send request to terminal
       parameters:
         - name: terminal_id
           in: path
-          description: Identifier of the payment terminal
+          description: Identifier of terminal
           required: true
           schema:
             type: string
@@ -571,28 +571,18 @@ paths:
           application/json:
             schema:
               type: object
-              properties:
-                amount:
-                  type: number
-                  description: Amount to be paid
-                  example: 100.00
-                currency:
-                  type: string
-                  description: Currency of the payment
-                  example: PHP
-                type:
-                  type: string
-                  description: Type of payment
-                  example: CARD, QRPH
+              additionalProperties: true
+            required: true
+
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Payment request sent successfully
+          description: Request sent successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TerminalPaymentResponse'
+                $ref: '#/components/schemas/TerminalResponse'
         '400':
           description: Bad Request
           content:
@@ -632,7 +622,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TerminalHealthCheckResponse'
+                $ref: '#/components/schemas/GenericHealthCheckResponse'
         '400':
           description: Bad Request
           content:
@@ -782,7 +772,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GenericSuccessResponse'
+                  $ref: '#/components/schemas/GenericHealthCheckResponse'
         '400':
           description: Bad Request
           content:
@@ -1241,8 +1231,8 @@ components:
           description: Additional data related to the health check
           example: {version: "1.0.0", uptime: "24 hours"}
 
-    TerminalPaymentResponse:
-      description: Successful response from Terminal payment request
+    TerminalResponse:
+      description: Request for Terminal
       type: object
       properties:
         trace_number:
@@ -1256,14 +1246,6 @@ components:
         transaction_date:
           type: string
           description: Date of the transaction in ISO 8601 format
-          example: "2023-10-01T12:00:00Z"
-        approval_code:
-          type: string
-          description: Approval code of the transaction
-          example: "123456"
-        approval_date:
-          type: string
-          description: Approval date of the transaction in ISO 8601 format
           example: "2023-10-01T12:00:00Z"
         retrieval_reference_number:
           type: string
@@ -1285,14 +1267,10 @@ components:
             - FAILED
             - PENDING
           example: "SUCCESS"
-        print_receipt:
-          type: boolean
-          description: Whether to print the receipt or not
-          default: false
         response_data:
           type: object
           description: Additional response data from the terminal
-          example: {aid: "aid", appLabel: "appLabel", cardNo: "1234567890123456", tc: "transaction_code", tsi: "tsi_value", tvr: "tvr_value"}
+          example: {approval_code: "000123", aid: "aid", appLabel: "appLabel", cardNo: "1234567890123456", tc: "transaction_code", tsi: "tsi_value", tvr: "tvr_value"}
         response_code:
           type: string
           description: Response code of the transaction
