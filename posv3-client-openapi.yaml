@@ -2011,7 +2011,7 @@ components:
                     properties:
                       type:
                         type: string
-                        description: Type of tender (e.g. CASH, CARD, GIFT_CHECK, EPAYMENT, COUPON)
+                        description: Type of tender (e.g. CASH, CARD, QRPH, GIFT_CHECK, CLIQQ, COUPON)
                         example: CASH
                       total_amount:
                         type: number
@@ -2499,10 +2499,14 @@ components:
       items:
         type: object
         properties:
-          data:
+          name:
             type: string
-            description: Details of an item
-            example: MayaQR-12332123
+            description: Name of the item
+            example: Item
+          reference_id:
+            type: string
+            description: Reference identifier for item
+            example: 12332123
           quantity:
             type: number
             description: Number of item used
