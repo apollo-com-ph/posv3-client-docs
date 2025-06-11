@@ -1972,9 +1972,9 @@ components:
           description: End date of the business date
           format: date-time
           example: 2021-01-01T23:59:59Z
-        x_readings:
+        day_readings:
           type: object
-          description: X Readings for the business date
+          description: DayEnd Readings for the business date
           allOf:
             - $ref: '#/components/schemas/PosReadingDocument'
             - type: object
@@ -2038,9 +2038,9 @@ components:
                             description: Type of total
                             example: merchandise_sales
                       - $ref: "#/components/schemas/ReadingBreakdownDocument"
-        z_readings:
+        cumulative_readings:
           type: object
-          description: Z Readings as of this business date
+          description: Cumulative Readings as of this business date
           allOf:
             - $ref: '#/components/schemas/PosReadingDocument'
             - type: object
@@ -2120,8 +2120,8 @@ components:
         - is_training_mode
         - terminal_id
         - start_date
-        - x_readings
-        - z_readings
+        - day_readings
+        - cumulative_readings
         - date_created
         - last_updated
 
@@ -2176,9 +2176,9 @@ components:
           description: End date of the business date
           format: date-time
           example: 2021-01-01T23:59:59Z
-        s_readings:
+        shift_readings:
           type: object
-          description: Shift Readings for the shift
+          description: ShiftEnd Readings for the shift
           allOf:
             - $ref: '#/components/schemas/PosReadingDocument'
             - type: object
@@ -2287,9 +2287,9 @@ components:
                         description: Time the time in / out happened
                         format: date-time
                         example: 2021-01-01T00:00:00Z
-        z_readings:
+        cumulative_readings:
           type: object
-          description: Z Readings as of this shift
+          description: Cumulative Readings as of this shift
           $ref: '#/components/schemas/PosReadingDocument'
         date_created:
           type: string
@@ -2305,8 +2305,8 @@ components:
         - shift_number
         - business_date
         - start_date
-        - s_readings
-        - z_readings
+        - shift_readings
+        - cumulative_readings
         - cashier_id
         - is_training_mode
         - terminal_id
