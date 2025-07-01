@@ -1,0 +1,561 @@
+RECEIPT TEMPLATE
+======================================
+TRANSACTION_OR
+TODO draft multicopy
+--------------------------------------
+<font:normal>
+| ${pos.store.owned_by} |
+| Owned & Operated by: ${pos.store.operated_by} |
+<#if pos.store.is_non_vat_registration>
+| NONVATREGTIN #${pos.store.tax_identification_number} |
+<#else>
+| VATREGTIN #${pos.store.tax_identification_number} |
+</#if>
+| ${pos.store.address} |
+| Tel #: ${pos.store.phone_number!"0000-0000"} |
+
+| ${transaction.date_created?string("yyyy/MM/dd(EEE) HH:mm:ss")} |
+
+[60|40]
+[INVOICE #${transaction.receipt_number}|RESET_CNT#${transaction.receipt_reset?string("000")}]
+[STORE#${transaction.store_code}|SN#:${pos.serial_number}]
+MIN #: ${pos.machine_identification_number}
+STAFF:${transaction.cashier_name}
+|---|
+<#if transaction.customer_type != "REGULAR">
+${transaction.customer_type?replace("_", " ")}
+</#if>
+<#assign totalGovernmentDiscount = 0>
+<#list transaction.items as item>
+<#if item.quantity > 1>
+[70|>30++]
+[${item.product.short_name}| ]
+[++30|20|>50++]
+[${item.unit_price?string("0.00")}|X   ${item.quantity}|${item.gross_amount?string("0.00")}${item.type?substring(0, 1)}]
+<#else>
+[70|>30++]
+[${item.product.short_name}|${item.gross_amount?string("0.00")}${item.type?substring(0, 1)}]
+</#if>
+<#if item.adjustments??>
+[++60|>40+++]
+<#list item.adjustments as adjustment>
+<#assign totalGovernmentDiscount = totalGovernmentDiscount + adjustment.total_discounted_amount>
+[${adjustment.promo_name?substring(0, 10)}|-${adjustment.total_discounted_amount?string("0.00")}]
+</#list>
+[70|>30]
+<#if adjustment.type == "GOVERNMENT">
+[NET AMT|${item.net_amount?string("0.00")}N]
+<#else>
+[NET AMT|${item.net_amount?string("0.00")}V]
+</#if>
+</#if>
+</#list>
+
+<font:large>
+[70|>30]
+[Total Amount Due (${transaction.total_quantity})|${transaction.net_amount?string("0.00")}]
+
+<font:normal>
+<#list transaction.payments as payment>
+[++70|>30]
+[${payment.type}|${payment.amount?string("0.00")}]
+<#if payment.type == "CASH">
+[++70|>30]
+[CHANGE|${payment.amount_change?string("0.00")}]
+</#if>
+</#list>
+|---|
+[Vatable|${transaction.vatable_amount?string("0.00")}]
+[VAT_Amt|${transaction.vat_amount?string("0.00")}]
+[VAT Exempt Sales|${transaction.non_vatable_amount?string("0.00")}]
+[Zero_Rated|${transaction.non_vatable_amount?string("0.00")}]
+<#if totalGovernmentDiscount > 0>
+[Total SC/PWD Disc|${totalGovernmentDiscount?string("0.00")}]
+</#if>
+
+|Loyalty No:_|
+|Name:_|
+|Address:_|
+<#if transaction.customer_type == "SENIOR_CITIZEN">
+|SC TIN:_|
+|SC ID No:_|
+<#elseif transaction.customer_type == "PERSON_WITH_DISABILITY">
+|PWD TIN:_|
+|PWD ID No:_|
+<#elseif transaction.customer_type == "DIPLOMAT">
+|VC/VIC ID No:_|
+|DFA ID No:_|
+<#elseif transaction.customer_type == "SOLO_PARENT">
+|SPIC Number:_|
+|Child/ren:_|
+<#else>
+|TIN:_|
+</#if>
+|Business Style:_|
+|Signature:_|
+
+${pos.software_provider.name}
+${pos.software_provider.address}
+TIN: ${pos.software_provider.tin}
+BIR Accr # ${pos.software_provider.bir_accreditation_number}
+Date Issued: ${pos.software_provider.accreditation_issued_date}
+PTU #: ${pos.bir_permit_number}
+
+<#list pos.pos_messages as msg>
+<if msg.type == "RECEIPT_FOOTER">
+${msg.value}
+</if>
+</#list>
+
+| - THIS IS A SALES INVOICE - |
+
+<cut:logo>
+
+
+======================================
+TRANSACTION_AR
+TODO draft multicopy payconnect txn details
+--------------------------------------
+<#assign copyLabels = [" ", "**** Duplicate Copy ****"] />
+<#list copyLabels as label >
+<font:normal>
+| ${pos.store.owned_by} |
+| Owned & Operated by: ${pos.store.operated_by} |
+<#if pos.store.is_non_vat_registration>
+| NONVATREGTIN #${pos.store.tax_identification_number} |
+<#else>
+| VATREGTIN #${pos.store.tax_identification_number} |
+</#if>
+| ${pos.store.address} |
+| Tel #: ${pos.store.phone_number!"0000-0000"} |
+
+| ${transaction.date_created?string("yyyy/MM/dd(EEE) HH:mm:ss")} |
+
+[60|40]
+[AR #${transaction.receipt_number}|RESET_CNT#${transaction.receipt_reset?string("000")}]
+[STORE#${transaction.store_code}|SN#:${pos.serial_number}]
+MIN #: ${pos.machine_identification_number}
+STAFF:${transaction.cashier_name}
+
+|*Acknowledgement Receipt*|
+| ${label} |
+
+<#list transaction.items as item>
+<#if item.quantity > 1>
+[70|>30++]
+[${item.product.short_name}| ]
+[++30|20|>50++]
+[${item.unit_price?string("0.00")}|X   ${item.quantity}|${item.gross_amount?string("0.00")}${item.type?substring(0, 1)}]
+<#else>
+[70|>30++]
+[${item.product.short_name}|${item.gross_amount?string("0.00")}${item.type?substring(0, 1)}]
+</#if>
+</#list>
+
+<font:large>
+[70|>30]
+[Total Amount Due (${transaction.total_quantity})|${transaction.net_amount?string("0.00")}]
+
+<font:normal>
+<#list transaction.payments as payment>
+[++70|>30]
+[${payment.type}|${payment.amount?string("0.00")}]
+<#if payment.type == "CASH">
+[++70|>30]
+[CHANGE|${payment.amount_change?string("0.00")}]
+</#if>
+</#list>
+
+|Loyalty No:_|
+|Name:_|
+|Address:_|
+|TIN:_|
+|Business Style:_|
+|Signature:_|
+
+${pos.software_provider.name}
+${pos.software_provider.address}
+TIN: ${pos.software_provider.tin}
+BIR Accr # ${pos.software_provider.bir_accreditation_number}
+Date Issued: ${pos.software_provider.accreditation_issued_date}
+PTU #: ${pos.bir_permit_number}
+
+<#list pos.pos_messages as msg>
+<if msg.type == "RECEIPT_FOOTER">
+${msg.value}
+</if>
+</#list>
+
+| THIS DOCUMENT IS NOT VALID FOR CLAIM OF INPUT TAX |
+
+<cut:logo>
+</#list>
+
+
+======================================
+Z_READING
+TODO: initial draft only
+--------------------------------------
+<#assign end = business_date />
+<#assign zread = business_date.z_readings />
+<#assign ar = zread.ar />
+<#assign or = zread.or />
+<#assign promo_sc20 = ((zread.totals?if_exists?filter(i -> i.type == "PROMO_SC20"))?first)!{} />
+<#assign promo_sc5 = ((zread.totals?filter(i -> i.type == "PROMO_SC5"))?first)!{} />
+<#assign promo_pwd20 = ((zread.totals?filter(i -> i.type == "PROMO_PWD20"))?first)!{} />
+<#assign promo_pwd5 = ((zread.totals?filter(i -> i.type == "PROMO_PWD5"))?first)!{} />
+<#assign promo_sp = ((zread.totals?filter(i -> i.type == "PROMO_SOLO10"))?first)!{} />
+<#assign discount_sc = (promo_sc20.discount!0.00) + (promo_sc5.discount!0.00) />
+<#assign discount_pwd = (promo_pwd20.discount!0.00) + (promo_pwd5.discount!0.00) />
+<#assign discount_sp = (promo_sp.discount!0.00) />
+<#assign discount_non_gov = or.discount - discount_sc - discount_pwd - discount_sp />
+<font:normal>
+| ${pos.store.owned_by} |
+| Owned & Operated by: ${pos.store.operated_by} |
+<#if pos.store.is_non_vat_registration>
+| NONVATREGTIN #${pos.store.tax_identification_number} |
+<#else>
+| VATREGTIN #${pos.store.tax_identification_number} |
+</#if>
+| ${pos.store.address} |
+| Tel #: ${pos.store.phone_number!"0000-0000"} |
+| ${end.date_created?date("yyyy-MM-dd\'T\'HH:mm:ss")?string("yyyy/MM/dd(EEE) HH:mm:ss")} |
+|***|
+| * SI / Z Report * |
+|***|
+[60|40]
+[POS:${end.terminal_id}|SN#:${pos.serial_number}]
+STORE#:${pos.store.id}
+BIR Accr#:${pos.software_provider.bir_accreditation_number}
+Permit #: ${pos.bir_permit_number}
+MIN #: ${pos.machine_identification_number}
+SI Series Beg: ${or.beginning_series}
+SI Series End: ${or.beginning_series}
+|= ACCUMULATED TOTAL =|
+[40|>13|>47]
+[DESCRIPTION|CNT|AMOUNT]
+|---|
+[100|>53|>47]
+[ENDING SI READING||${or.ending_sales?string("0.00")}]
+[SALES RESET|${or.sales_reset}|]
+[RECEIPT RESET|${or.series_reset}|]
+|= SALES =|
+[100|>30|>22|>48]
+[DESCRIPTION|CUST|QTY|AMOUNT]
+|---|
+[GROSS MERCHANDISE SALES|${or.transaction_count}|${or.transaction_item_quantity_count}|${or.gross_sales?string("0.00")}]
+[CANCEL|${or.transaction_void_count}|${or.transaction_void_item_quantity_count}|${or.transaction_void?string("0.00")}]
+[VOID|${or.item_void_count}|${or.item_void_item_quantity_count}|${or.item_void?string("0.00")}]
+[RECEIPT REFUND|${or.receipt_refund_count}|${or.receipt_refund_item_quantity_count}|${or.receipt_refund?string("0.00")}]
+[ITEM REFUND|${or.item_refund_count}|${or.item_refund_item_quantity_count}|${or.item_receipt_refund?string("0.00")}]
+[TOTAL REFUND|${or.receipt_refund_count + or.item_refund_count}|${or.receipt_refund_item_quantity_count + or.item_refund_item_quantity_count}|${(or.receipt_refund + or.item_receipt_refund)?string("0.00")}]
+[TOTAL MERCHANDISE SALES|${or.transaction_count - or.receipt_refund_count}|${or.transaction_item_quantity_count - or.receipt_refund_item_quantity_count}|${(or.gross_sales - or.receipt_refund)?string("0.00")}]
+[PROMO DISCOUNT|||${discount_non_gov?string("0.00")}]
+[SENIOR CITIZEN DISCOUNT|||${discount_sc?string("0.00")}]
+[PERSONS WITH DISABILITY DISCOUNT|||${discount_pwd?string("0.00")}]
+[SOLO PARENT DISCOUNT|||${discount_sp?string("0.00")}]
+[TOTAL DISCOUNT|||${or.discount?string("0.00")}]
+[NET MERCHANDISE SALES|||${or.net_sales?string("0.00")}]
+[VATABLE MERC. SALES|||${or.vatable_sales?string("0.00")}]
+[VAT AMT: MERC. SALES|||${or.vat_amount?string("0.00")}]
+[VAT EXEMPT: MERC. SALES|||${or.non_vatable_sales?string("0.00")}]
+[VAT EXEMPT: SC SALES|||${((promo_sc20.non_vatable_sales!0.00) + (promo_sc5.non_vatable_sales!0.00))?string("0.00")}]
+[VAT EXEMPT: PWD SALES|||${((promo_pwd20.non_vatable_sales!0.00) + (promo_pwd5.non_vatable_sales!0.00))?string("0.00")}]
+[VAT EXEMPT: SP SALES|||${(promo_sp.non_vatable_sales!0.00)?string("0.00")}]
+[ZERO RATED SALES|||${or.zero_rated_sales?string("0.00")}]
+[VAT EXEMPT SC|||${((promo_sc20.vat_amount!0.00) + (promo_sc5.vat_amount!0.00))?string("0.00")}]
+[VAT EXEMPT PWD|||${((promo_pwd20.vat_amount!0.00) + (promo_pwd5.vat_amount!0.00))?string("0.00")}]
+[VAT EXEMPT SP|||${(promo_sp.vat_amount!0.00)?string("0.00")}]
+|* END *|
+<cut:logo>
+<font:normal>
+| ${pos.store.owned_by} |
+| Owned & Operated by: ${pos.store.operated_by} |
+<#if pos.store.is_non_vat_registration>
+| NONVATREGTIN #${pos.store.tax_identification_number} |
+<#else>
+| VATREGTIN #${pos.store.tax_identification_number} |
+</#if>
+| ${pos.store.address} |
+| Tel #: ${pos.store.phone_number!"0000-0000"} |
+| ${end.date_created?date("yyyy-MM-dd\'T\'HH:mm:ss")?string("yyyy/MM/dd(EEE) HH:mm:ss")} |
+|***|
+| * AR / Z Report * |
+|***|
+[60|40]
+[POS:${end.terminal_id}|SN#:${pos.serial_number}]
+STORE#:${pos.store.id}
+BIR Accr#:${pos.software_provider.bir_accreditation_number}
+Permit #: ${pos.bir_permit_number}
+MIN #: ${pos.machine_identification_number}
+AR Beg: ${ar.beginning_series}
+AR End: ${ar.beginning_series}
+|= ACCUMULATED TOTAL =|
+[33|>20|>47]
+[DESCRIPTION|CNT|AMOUNT]
+|---|
+[100|>53|>47]
+[BEGINNING  AR||${ar.beginning_sales?string("0.00")}]
+[ENDING AR||${ar.ending_sales?string("0.00")}]
+[AR SALES FOR THE DAY||${(ar.ending_sales + ar.beginning_sales)?string("0.00")}]
+[SALES RESET|${ar.sales_reset}|]
+[RECEIPT RESET|${ar.series_reset}|]
+|= SALES =|
+[100|>40|>60]
+[DESCRIPTION||AMOUNT]
+|---|
+[GROSS AR||${ar.gross_sales?string("0.00")}]
+[TOTAL REFUND||${(ar.receipt_refund + ar.item_receipt_refund)?string("0.00")}]
+[NET AR||${ar.net_sales?string("0.00")}]
+[TOTAL COST PAYABLE||${ar.cost_payable?string("0.00")}]
+[TOTAL AR COMMISSION||${ar.commission?string("0.00")}]
+[VATABLE AR COMMISSION||${(ar.commission / 1.12)?string("0.00")}]
+[VAT AMT: AR COMMISSION||${(ar.commission - (ar.commission / 1.12))?string("0.00")}]
+|* END *|
+<cut:logo>
+
+
+======================================
+X_READING (DAY END)
+TODO: initial draft only
+--------------------------------------
+<#assign end = business_date />
+<#assign zread = business_date.x_readings />
+<#assign ar = zread.ar />
+<#assign or = zread.or />
+<#assign promo_sc20 = ((zread.totals?if_exists?filter(i -> i.type == "PROMO_SC20"))?first)!{} />
+<#assign promo_sc5 = ((zread.totals?filter(i -> i.type == "PROMO_SC5"))?first)!{} />
+<#assign promo_pwd20 = ((zread.totals?filter(i -> i.type == "PROMO_PWD20"))?first)!{} />
+<#assign promo_pwd5 = ((zread.totals?filter(i -> i.type == "PROMO_PWD5"))?first)!{} />
+<#assign promo_sp = ((zread.totals?filter(i -> i.type == "PROMO_SOLO10"))?first)!{} />
+<#assign discount_sc = (promo_sc20.discount!0.00) + (promo_sc5.discount!0.00) />
+<#assign discount_pwd = (promo_pwd20.discount!0.00) + (promo_pwd5.discount!0.00) />
+<#assign discount_sp = (promo_sp.discount!0.00) />
+<#assign discount_non_gov = or.discount - discount_sc - discount_pwd - discount_sp />
+<font:normal>
+| ${pos.store.owned_by} |
+| Owned & Operated by: ${pos.store.operated_by} |
+<#if pos.store.is_non_vat_registration>
+| NONVATREGTIN #${pos.store.tax_identification_number} |
+<#else>
+| VATREGTIN #${pos.store.tax_identification_number} |
+</#if>
+| ${pos.store.address} |
+| Tel #: ${pos.store.phone_number!"0000-0000"} |
+| ${end.date_created?date("yyyy-MM-dd\'T\'HH:mm:ss")?string("yyyy/MM/dd(EEE) HH:mm:ss")} |
+|***|
+| * SI / X Report * |
+|***|
+[60|40]
+[POS:${end.terminal_id}|SN#:${pos.serial_number}]
+STORE#:${pos.store.id}
+BIR Accr#:${pos.software_provider.bir_accreditation_number}
+Permit #: ${pos.bir_permit_number}
+MIN #: ${pos.machine_identification_number}
+SI Series Beg: ${or.beginning_series}
+SI Series End: ${or.beginning_series}
+|= ACCUMULATED TOTAL =|
+[40|>13|>47]
+[DESCRIPTION|CNT|AMOUNT]
+|---|
+[100|>53|>47]
+[ENDING SI READING||${or.ending_sales?string("0.00")}]
+[SALES RESET|${or.sales_reset}|]
+[RECEIPT RESET|${or.series_reset}|]
+|= SALES =|
+[100|>30|>22|>48]
+[DESCRIPTION|CUST|QTY|AMOUNT]
+|---|
+[GROSS MERCHANDISE SALES|${or.transaction_count}|${or.transaction_item_quantity_count}|${or.gross_sales?string("0.00")}]
+[CANCEL|${or.transaction_void_count}|${or.transaction_void_item_quantity_count}|${or.transaction_void?string("0.00")}]
+[VOID|${or.item_void_count}|${or.item_void_item_quantity_count}|${or.item_void?string("0.00")}]
+[RECEIPT REFUND|${or.receipt_refund_count}|${or.receipt_refund_item_quantity_count}|${or.receipt_refund?string("0.00")}]
+[ITEM REFUND|${or.item_refund_count}|${or.item_refund_item_quantity_count}|${or.item_receipt_refund?string("0.00")}]
+[TOTAL REFUND|${or.receipt_refund_count + or.item_refund_count}|${or.receipt_refund_item_quantity_count + or.item_refund_item_quantity_count}|${(or.receipt_refund + or.item_receipt_refund)?string("0.00")}]
+[TOTAL MERCHANDISE SALES|${or.transaction_count - or.receipt_refund_count}|${or.transaction_item_quantity_count - or.receipt_refund_item_quantity_count}|${(or.gross_sales - or.receipt_refund)?string("0.00")}]
+[PROMO DISCOUNT|||${discount_non_gov?string("0.00")}]
+[SENIOR CITIZEN DISCOUNT|||${discount_sc?string("0.00")}]
+[PERSONS WITH DISABILITY DISCOUNT|||${discount_pwd?string("0.00")}]
+[SOLO PARENT DISCOUNT|||${discount_sp?string("0.00")}]
+[TOTAL DISCOUNT|||${or.discount?string("0.00")}]
+[NET MERCHANDISE SALES|||${or.net_sales?string("0.00")}]
+[VATABLE MERC. SALES|||${or.vatable_sales?string("0.00")}]
+[VAT AMT: MERC. SALES|||${or.vat_amount?string("0.00")}]
+[VAT EXEMPT: MERC. SALES|||${or.non_vatable_sales?string("0.00")}]
+[VAT EXEMPT: SC SALES|||${((promo_sc20.non_vatable_sales!0.00) + (promo_sc5.non_vatable_sales!0.00))?string("0.00")}]
+[VAT EXEMPT: PWD SALES|||${((promo_pwd20.non_vatable_sales!0.00) + (promo_pwd5.non_vatable_sales!0.00))?string("0.00")}]
+[VAT EXEMPT: SP SALES|||${(promo_sp.non_vatable_sales!0.00)?string("0.00")}]
+[ZERO RATED SALES|||${or.zero_rated_sales?string("0.00")}]
+[VAT EXEMPT SC|||${((promo_sc20.vat_amount!0.00) + (promo_sc5.vat_amount!0.00))?string("0.00")}]
+[VAT EXEMPT PWD|||${((promo_pwd20.vat_amount!0.00) + (promo_pwd5.vat_amount!0.00))?string("0.00")}]
+[VAT EXEMPT SP|||${(promo_sp.vat_amount!0.00)?string("0.00")}]
+|* END *|
+<cut:logo>
+<font:normal>
+| ${pos.store.owned_by} |
+| Owned & Operated by: ${pos.store.operated_by} |
+<#if pos.store.is_non_vat_registration>
+| NONVATREGTIN #${pos.store.tax_identification_number} |
+<#else>
+| VATREGTIN #${pos.store.tax_identification_number} |
+</#if>
+| ${pos.store.address} |
+| Tel #: ${pos.store.phone_number!"0000-0000"} |
+| ${end.date_created?date("yyyy-MM-dd\'T\'HH:mm:ss")?string("yyyy/MM/dd(EEE) HH:mm:ss")} |
+|***|
+| * AR / X Report * |
+|***|
+[60|40]
+[POS:${end.terminal_id}|SN#:${pos.serial_number}]
+STORE#:${pos.store.id}
+BIR Accr#:${pos.software_provider.bir_accreditation_number}
+Permit #: ${pos.bir_permit_number}
+MIN #: ${pos.machine_identification_number}
+AR Beg: ${ar.beginning_series}
+AR End: ${ar.beginning_series}
+|= ACCUMULATED TOTAL =|
+[33|>20|>47]
+[DESCRIPTION|CNT|AMOUNT]
+|---|
+[100|>53|>47]
+[BEGINNING  AR||${ar.beginning_sales?string("0.00")}]
+[ENDING AR||${ar.ending_sales?string("0.00")}]
+[AR SALES FOR THE DAY||${(ar.ending_sales + ar.beginning_sales)?string("0.00")}]
+[SALES RESET|${ar.sales_reset}|]
+[RECEIPT RESET|${ar.series_reset}|]
+|= SALES =|
+[100|>40|>60]
+[DESCRIPTION||AMOUNT]
+|---|
+[GROSS AR||${ar.gross_sales?string("0.00")}]
+[TOTAL REFUND||${(ar.receipt_refund + ar.item_receipt_refund)?string("0.00")}]
+[NET AR||${ar.net_sales?string("0.00")}]
+[TOTAL COST PAYABLE||${ar.cost_payable?string("0.00")}]
+[TOTAL AR COMMISSION||${ar.commission?string("0.00")}]
+[VATABLE AR COMMISSION||${(ar.commission / 1.12)?string("0.00")}]
+[VAT AMT: AR COMMISSION||${(ar.commission - (ar.commission / 1.12))?string("0.00")}]
+|* END *|
+<cut:logo>
+
+
+======================================
+S_READING (SHIFT END)
+TODO: initial draft only
+--------------------------------------
+<#assign end = shift />
+<#assign zread = shift.s_readings />
+<#assign ar = zread.ar />
+<#assign or = zread.or />
+<#assign promo_sc20 = ((zread.totals?if_exists?filter(i -> i.type == "PROMO_SC20"))?first)!{} />
+<#assign promo_sc5 = ((zread.totals?filter(i -> i.type == "PROMO_SC5"))?first)!{} />
+<#assign promo_pwd20 = ((zread.totals?filter(i -> i.type == "PROMO_PWD20"))?first)!{} />
+<#assign promo_pwd5 = ((zread.totals?filter(i -> i.type == "PROMO_PWD5"))?first)!{} />
+<#assign promo_sp = ((zread.totals?filter(i -> i.type == "PROMO_SOLO10"))?first)!{} />
+<#assign discount_sc = (promo_sc20.discount!0.00) + (promo_sc5.discount!0.00) />
+<#assign discount_pwd = (promo_pwd20.discount!0.00) + (promo_pwd5.discount!0.00) />
+<#assign discount_sp = (promo_sp.discount!0.00) />
+<#assign discount_non_gov = or.discount - discount_sc - discount_pwd - discount_sp />
+<font:normal>
+| ${pos.store.owned_by} |
+| Owned & Operated by: ${pos.store.operated_by} |
+<#if pos.store.is_non_vat_registration>
+| NONVATREGTIN #${pos.store.tax_identification_number} |
+<#else>
+| VATREGTIN #${pos.store.tax_identification_number} |
+</#if>
+| ${pos.store.address} |
+| Tel #: ${pos.store.phone_number!"0000-0000"} |
+| ${end.date_created?date("yyyy-MM-dd\'T\'HH:mm:ss")?string("yyyy/MM/dd(EEE) HH:mm:ss")} |
+|***|
+| * SI / S Report * |
+|***|
+[60|40]
+[POS:${end.terminal_id}|SN#:${pos.serial_number}]
+STORE#:${pos.store.id}
+BIR Accr#:${pos.software_provider.bir_accreditation_number}
+Permit #: ${pos.bir_permit_number}
+MIN #: ${pos.machine_identification_number}
+SI Series Beg: ${or.beginning_series}
+SI Series End: ${or.beginning_series}
+|= ACCUMULATED TOTAL =|
+[40|>13|>47]
+[DESCRIPTION|CNT|AMOUNT]
+|---|
+[100|>53|>47]
+[ENDING SI READING||${or.ending_sales?string("0.00")}]
+[SALES RESET|${or.sales_reset}|]
+[RECEIPT RESET|${or.series_reset}|]
+|= SALES =|
+[100|>30|>22|>48]
+[DESCRIPTION|CUST|QTY|AMOUNT]
+|---|
+[GROSS MERCHANDISE SALES|${or.transaction_count}|${or.transaction_item_quantity_count}|${or.gross_sales?string("0.00")}]
+[CANCEL|${or.transaction_void_count}|${or.transaction_void_item_quantity_count}|${or.transaction_void?string("0.00")}]
+[VOID|${or.item_void_count}|${or.item_void_item_quantity_count}|${or.item_void?string("0.00")}]
+[RECEIPT REFUND|${or.receipt_refund_count}|${or.receipt_refund_item_quantity_count}|${or.receipt_refund?string("0.00")}]
+[ITEM REFUND|${or.item_refund_count}|${or.item_refund_item_quantity_count}|${or.item_receipt_refund?string("0.00")}]
+[TOTAL REFUND|${or.receipt_refund_count + or.item_refund_count}|${or.receipt_refund_item_quantity_count + or.item_refund_item_quantity_count}|${(or.receipt_refund + or.item_receipt_refund)?string("0.00")}]
+[TOTAL MERCHANDISE SALES|${or.transaction_count - or.receipt_refund_count}|${or.transaction_item_quantity_count - or.receipt_refund_item_quantity_count}|${(or.gross_sales - or.receipt_refund)?string("0.00")}]
+[PROMO DISCOUNT|||${discount_non_gov?string("0.00")}]
+[SENIOR CITIZEN DISCOUNT|||${discount_sc?string("0.00")}]
+[PERSONS WITH DISABILITY DISCOUNT|||${discount_pwd?string("0.00")}]
+[SOLO PARENT DISCOUNT|||${discount_sp?string("0.00")}]
+[TOTAL DISCOUNT|||${or.discount?string("0.00")}]
+[NET MERCHANDISE SALES|||${or.net_sales?string("0.00")}]
+[VATABLE MERC. SALES|||${or.vatable_sales?string("0.00")}]
+[VAT AMT: MERC. SALES|||${or.vat_amount?string("0.00")}]
+[VAT EXEMPT: MERC. SALES|||${or.non_vatable_sales?string("0.00")}]
+[VAT EXEMPT: SC SALES|||${((promo_sc20.non_vatable_sales!0.00) + (promo_sc5.non_vatable_sales!0.00))?string("0.00")}]
+[VAT EXEMPT: PWD SALES|||${((promo_pwd20.non_vatable_sales!0.00) + (promo_pwd5.non_vatable_sales!0.00))?string("0.00")}]
+[VAT EXEMPT: SP SALES|||${(promo_sp.non_vatable_sales!0.00)?string("0.00")}]
+[ZERO RATED SALES|||${or.zero_rated_sales?string("0.00")}]
+[VAT EXEMPT SC|||${((promo_sc20.vat_amount!0.00) + (promo_sc5.vat_amount!0.00))?string("0.00")}]
+[VAT EXEMPT PWD|||${((promo_pwd20.vat_amount!0.00) + (promo_pwd5.vat_amount!0.00))?string("0.00")}]
+[VAT EXEMPT SP|||${(promo_sp.vat_amount!0.00)?string("0.00")}]
+|* END *|
+<cut:logo>
+<font:normal>
+| ${pos.store.owned_by} |
+| Owned & Operated by: ${pos.store.operated_by} |
+<#if pos.store.is_non_vat_registration>
+| NONVATREGTIN #${pos.store.tax_identification_number} |
+<#else>
+| VATREGTIN #${pos.store.tax_identification_number} |
+</#if>
+| ${pos.store.address} |
+| Tel #: ${pos.store.phone_number!"0000-0000"} |
+| ${end.date_created?date("yyyy-MM-dd\'T\'HH:mm:ss")?string("yyyy/MM/dd(EEE) HH:mm:ss")} |
+|***|
+| * AR / S Report * |
+|***|
+[60|40]
+[POS:${end.terminal_id}|SN#:${pos.serial_number}]
+STORE#:${pos.store.id}
+BIR Accr#:${pos.software_provider.bir_accreditation_number}
+Permit #: ${pos.bir_permit_number}
+MIN #: ${pos.machine_identification_number}
+AR Beg: ${ar.beginning_series}
+AR End: ${ar.beginning_series}
+|= ACCUMULATED TOTAL =|
+[33|>20|>47]
+[DESCRIPTION|CNT|AMOUNT]
+|---|
+[100|>53|>47]
+[BEGINNING  AR||${ar.beginning_sales?string("0.00")}]
+[ENDING AR||${ar.ending_sales?string("0.00")}]
+[AR SALES FOR THE DAY||${(ar.ending_sales + ar.beginning_sales)?string("0.00")}]
+[SALES RESET|${ar.sales_reset}|]
+[RECEIPT RESET|${ar.series_reset}|]
+|= SALES =|
+[100|>40|>60]
+[DESCRIPTION||AMOUNT]
+|---|
+[GROSS AR||${ar.gross_sales?string("0.00")}]
+[TOTAL REFUND||${(ar.receipt_refund + ar.item_receipt_refund)?string("0.00")}]
+[NET AR||${ar.net_sales?string("0.00")}]
+[TOTAL COST PAYABLE||${ar.cost_payable?string("0.00")}]
+[TOTAL AR COMMISSION||${ar.commission?string("0.00")}]
+[VATABLE AR COMMISSION||${(ar.commission / 1.12)?string("0.00")}]
+[VAT AMT: AR COMMISSION||${(ar.commission - (ar.commission / 1.12))?string("0.00")}]
+|* END *|
+<cut:logo>
