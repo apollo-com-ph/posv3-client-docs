@@ -3461,6 +3461,10 @@ components:
           type: number
           description: Total Change amount of the transaction
           default: 0.00
+        total_amount_excess:
+          type: number
+          description: Total Excess amount of the transaction
+          default: 0.00
         total_quantity:
           type: number
           description: Total number of items of the transaction
