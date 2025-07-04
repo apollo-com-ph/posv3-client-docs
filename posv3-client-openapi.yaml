@@ -3057,6 +3057,10 @@ components:
           type: string
           description: Name of the cashier
           example: Juan Luna
+        receipt_reprint_count:
+          type: number
+          description: Number of times receipt was reprinted
+          example: 0
         receipt_printout:
           type: string
           description: Receipt printout of the event
