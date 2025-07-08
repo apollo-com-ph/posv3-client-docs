@@ -2957,10 +2957,27 @@ components:
           type: string
           description: description of the receipt template
           example: Login receipt template
+        label:
+          type: string
+          description: Text to display in Report Menu
+          example: Merchandise Sales
+        event_type_filter:
+          type: array
+          description: List of Event Types that will be used as data for the report
+          items:
+            type: string
+            example: [ShiftEnd]
         template:
           type: string
           description: Template of the receipt
           example: "|*Log In*|\n${username}\n${login_date}\nLogin successful!\n|---|"
+        save_file_extension:
+          type: string
+          description: Set file extension when output is saved as file. No value means template cannot be saved as file.
+          example: csv
+        is_printable:
+          type: boolean
+          description: True if output of template can be printed in POS printer
 
     PosMessageDocument:
       type: object
