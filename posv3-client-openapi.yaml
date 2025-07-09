@@ -2967,6 +2967,10 @@ components:
           items:
             type: string
             example: [ShiftEnd]
+        event_data_filter:
+          type: string
+          description: Additional filter for the event
+          example: $.items[*].adjustments[*].promo_id IN 'SC20', 'SC5'
         template:
           type: string
           description: Template of the receipt
@@ -2978,6 +2982,19 @@ components:
         is_printable:
           type: boolean
           description: True if output of template can be printed in POS printer
+        enabled:
+          type: boolean
+          description: True if template is available in Report Menu
+        date_created:
+          type: string
+          description: Date created of this document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the user document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
 
     PosMessageDocument:
       type: object
@@ -3007,6 +3024,16 @@ components:
           type: string
           description: Schedule in cron format when to display message when applicable
           example: "0 0 0 * * *"
+        date_created:
+          type: string
+          description: Date created of this document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
+        last_updated:
+          type: string
+          description: Last updated date of the user document
+          format: date-time
+          example: 2021-01-01T00:00:00Z
 
     EventDocument:
       type: object
@@ -3316,44 +3343,16 @@ components:
                 type: string
                 description: Remarks for the item
                 example: No remarks
+              adjustments:
+                type: array
+                description: List of adjustments applied to the item
+                items:
+                  $ref: '#/components/schemas/TransactionAdjustmentDocument'
         adjustments:
           type: array
-          description: List of adjustments in the transaction
+          description: List of adjustments applied to the transaction
           items:
-            type: object
-            properties:
-              type:
-                type: string
-                description: Type of the adjustment. Possible values [DISCOUNT, GOVERNMENT_DISCOUNT]
-                example: GOVERNMENT_DISCOUNT
-              promo_id:
-                type: string
-                description: Identifier of the Promo
-                example: 123e4567-e89b-12d3-a456-426614174000
-              promo_name:
-                type: string
-                description: Name of the Promo
-                example: SENIOR CITIZEN DISCOUNT
-              non_cash_code:
-                type: string
-                description: NonCash identifier of the Promo
-                example: 20190911-0010
-              total_vat_excluded_amount:
-                type: number
-                description: Amount deducted from VAT
-                example: 100.00
-              total_discounted_amount:
-                type: number
-                description: Amount of the adjustment
-                example: 100.00
-              quantity:
-                type: number
-                description: Number of times the adjustment was applied
-                example: 1
-              remarks:
-                type: string
-                description: Remarks for the adjustment
-                example: Senior Citizen Discount
+            $ref: '#/components/schemas/TransactionAdjustmentDocument'
         rewards:
           type: array
           description: List of rewards in the transaction
@@ -3498,6 +3497,43 @@ components:
           type: string
           description: Reason for refund transaction
           example: Defective
+
+    TransactionAdjustmentDocument:
+      description: Transaction adjustment Document
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of the adjustment. Possible values [DISCOUNT, GOVERNMENT_DISCOUNT]
+          example: GOVERNMENT_DISCOUNT
+        promo_id:
+          type: string
+          description: Identifier of the Promo
+          example: 123e4567-e89b-12d3-a456-426614174000
+        promo_name:
+          type: string
+          description: Name of the Promo
+          example: SENIOR CITIZEN DISCOUNT
+        non_cash_code:
+          type: string
+          description: NonCash identifier of the Promo
+          example: 20190911-0010
+        total_vat_excluded_amount:
+          type: number
+          description: Amount deducted from VAT
+          example: 100.00
+        total_discounted_amount:
+          type: number
+          description: Amount of the adjustment
+          example: 100.00
+        quantity:
+          type: number
+          description: Number of times the adjustment was applied
+          example: 1
+        remarks:
+          type: string
+          description: Remarks for the adjustment
+          example: Senior Citizen Discount
 
     CashMovementDocument:
       description: Cash Movement document
