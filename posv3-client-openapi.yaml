@@ -1852,24 +1852,6 @@ components:
                     type: string
                     description: Name of the category
                     example: Food
-        capture_field:
-          type: array
-          description: Customer details to capture when discount is applied
-          items:
-            type: object
-            properties:
-              label:
-                type: string
-                description: Label for the capture field
-                example: Customer Name
-              field_type:
-                type: string
-                description: Type of the capture field [TEXT, NUMBER, DATE]
-                example: TEXT
-              required:
-                type: boolean
-                description: Is the capture field required
-                example: true
 
     BarcodeDocument:
       description: Barcode document
@@ -2619,13 +2601,21 @@ components:
           type: number
           description: Total zero rated sales
           default: 0.00
-        discount:
+        item_discount:
           type: number
-          description: Total discounted amount for the type
+          description: Total discounted amount on item prices for the type
           default: 0.00
-        discount_count:
+        item_discount_count:
           type: number
-          description: Number of discounts for the type
+          description: Number of item discounts for the type
+          default: 0
+        transaction_discount:
+          type: number
+          description: Total discounted amount on transaction totals for the type
+          default: 0.00
+        transaction_discount_count:
+          type: number
+          description: Number of transaction discounts for the type
           default: 0
         discount_item_quantity_count:
           type: number
@@ -2864,7 +2854,7 @@ components:
                 description: Key for the configuration setting
                 example: key1
               value:
-                type: string
+                type: object
                 description: Value for the configuration setting
                 example: value1
             required:
