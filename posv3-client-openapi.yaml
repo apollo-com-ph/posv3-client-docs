@@ -1554,7 +1554,7 @@ components:
         vat_percentage:
           type: number
           description: VAT percentage applicable to the price
-          example: 10.00
+          example: 12.00
         currency:
           type: string
           description: Currency of the price
@@ -3391,6 +3391,10 @@ components:
                     type: string
                     description: Type of VAT for the product. Possible values [VATABLE, NON_VAT, ZERO_RATED]
                     example: VATABLE
+                  vat_percentage:
+                    type: number
+                    description: VAT percentage applicable to the product
+                    example: 12.00
                   long_name:
                     type: string
                     description: Unabbreviated name of the product
@@ -3410,6 +3414,34 @@ components:
                     items:
                       type: string
                       example: [REGULAR_ITEM, SC_20, PWD_20]
+                  is_consigned:
+                    type: boolean
+                    description: Proudct is consigned
+                    default: false
+                  is_serializable:
+                    type: boolean
+                    description: Product is serialized
+                    default: false
+                  is_returnable:
+                    type: boolean
+                    description: Product can be returned
+                    default: true
+                  is_for_acknowledgement_receipt:
+                    type: boolean
+                    description: Sale of product requires acknowledgement receipt
+                    default: false
+                  is_non_vatable:
+                    type: boolean
+                    description: Product is non-vatable
+                    default: false
+                  is_coupon:
+                    type: boolean
+                    description: Product is a coupon
+                    default: false
+                  is_manual_created:
+                    type: boolean
+                    description: Product manually was created in POS
+                    default: false
               additional_data:
                 type: object
                 description: Additional data for the item
