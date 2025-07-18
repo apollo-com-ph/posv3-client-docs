@@ -2669,6 +2669,42 @@ components:
           type: number
           description: Number of items that was item void for the type
           default: 0
+        consigned_amount:
+          type: number
+          description: Total consigned amount for the type
+          default: 0.00
+        consigned_count:
+          type: number
+          description: Number of consigned items for the type
+          default: 0
+        consigned_item_quantity_count:
+          type: number
+          description: Number of items that was consigned for the type
+          default: 0
+        consigned_refund_amount:
+          type: number
+          description: Total consigned refund amount for the type
+          default: 0.00
+        consigned_refund_count:
+          type: number
+          description: Number of consigned refund for the type
+          default: 0
+        consigned_refund_item_quantity_count:
+          type: number
+          description: Number of items that was consigned refund for the type
+          default: 0
+        consigned_void_amount:
+          type: number
+          description: Total consigned void amount for the type
+          default: 0.00
+        consigned_void_count:
+          type: number
+          description: Number of consigned void for the type
+          default: 0
+        consigned_void_item_quantity_count:
+          type: number
+          description: Number of items that was consigned void for the type
+          default: 0
       required:
         - type
         - gross_sales
@@ -3323,6 +3359,10 @@ components:
                 type: number
                 description: Zero rated amount of the item. Price of the item has 0 vat_percentage or is exempted because customer is DIPLOMAT
                 default: 0.00
+              consigned_amount:
+                type: number
+                description: Consigned amount of the item. Product is marked as consigned.
+                default: 0.00
               commission_amount:
                 type: number
                 description: Commission amount of the item. Either retrieved from the online service or defined commission rate for the product
@@ -3495,6 +3535,10 @@ components:
         total_zero_rated_amount:
           type: number
           description: Total Zero rated amount of the transaction
+          default: 0.00
+        total_consigned_amount:
+          type: number
+          description: Total consigned amount of the transaction
           default: 0.00
         total_commission_amount:
           type: number
