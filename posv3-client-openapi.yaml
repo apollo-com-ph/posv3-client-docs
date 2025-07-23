@@ -2625,6 +2625,14 @@ components:
           type: number
           description: Total receipt refunded amount for the type
           default: 0.00
+        receipt_refund_vatable_amount:
+          type: number
+          description: Total vatable amount for receipt refunded for the type
+          default: 0.00
+        receipt_refund_vat_amount:
+          type: number
+          description: Total vat amount for receipt refunded for the type
+          default: 0.00
         receipt_refund_count:
           type: number
           description: Number of receipt refunded for the type
@@ -2636,6 +2644,14 @@ components:
         item_receipt_refund:
           type: number
           description: Total item refunded amount for the type
+          default: 0.00
+        item_refund_vatable_amount:
+          type: number
+          description: Total vatable amount for item refunded for the type
+          default: 0.00
+        item_refund_vat_amount:
+          type: number
+          description: Total vat amount for item refunded for the type
           default: 0.00
         item_refund_count:
           type: number
@@ -2673,6 +2689,14 @@ components:
           type: number
           description: Total consigned amount for the type
           default: 0.00
+        consigned_vatable_amount:
+          type: number
+          description: Total consigned vatable amount for the type
+          default: 0.00
+        consigned_vat_amount:
+          type: number
+          description: Total vat amount for consigned for the type
+          default: 0.00
         consigned_count:
           type: number
           description: Number of consigned items for the type
@@ -2684,6 +2708,14 @@ components:
         consigned_refund_amount:
           type: number
           description: Total consigned refund amount for the type
+          default: 0.00
+        consigned_refund_vatable_amount:
+          type: number
+          description: Total consigned vatable amount for the type
+          default: 0.00
+        consigned_refund_vat_amount:
+          type: number
+          description: Total vat amount for consigned refund for the type
           default: 0.00
         consigned_refund_count:
           type: number
