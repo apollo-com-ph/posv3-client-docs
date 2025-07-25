@@ -880,10 +880,6 @@ paths:
                               type: string
                               description: Description of the update for the component
                               example: Bugfixes and performance improvements
-                            component_type:
-                              type: string
-                              description: Type of the component. Can be CLIENT, PWA, PLUGIN
-                              example: CLIENT
                             download_url:
                               type: string
                               description: URL to download the update for the component
