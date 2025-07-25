@@ -893,7 +893,7 @@ paths:
                               format: date-time
                               description: Date when the update was released
                               example: 2023-10-01T12:00:00Z
-                  - $ref: '#/components/schemas/GenericHealthCheckResponse'
+                  - $ref: '#/components/schemas/GenericSuccessResponse'
         '401':
           description: Unauthorized
           content:
